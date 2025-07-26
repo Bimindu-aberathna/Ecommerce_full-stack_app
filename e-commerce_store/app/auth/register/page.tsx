@@ -1,28 +1,28 @@
-'use client';
-import { registerUser } from "@/app/api/auth";
+"use client";
+import { useAuth } from "@/src/hooks/useAuth";
 import { validateUser } from "@/src/services/validation/validation.services";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 
 export default function RegisterPage() {
+  const { register, loading } = useAuth();
   const [userData, setUserData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    mobile: '',
-    address: '',
-    postalCode: '',
-    password: '',
-    confirmPassword: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    mobile: "",
+    address: "",
+    postalCode: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    
     e.preventDefault();
     // Validate input
     const errors = validateUser(userData);
@@ -30,18 +30,22 @@ export default function RegisterPage() {
       errors.forEach((error) => toast.error(error));
       return;
     }
+    if (userData.password !== userData.confirmPassword) {
+      toast.error("Passwords do not match");
 
-    // Call your registration service here
-    try {
-      await registerUser(userData);
-      toast.success("Registration successful!");
-      // Redirect or perform further actions
-      router.push('/auth/login'); // Redirect to login page after successful registration
-    } catch (error) {
-      console.error("Registration failed:", error);
-      toast.error("Registration failed. Please try again.");
+      return;
     }
-  }
+
+    // Call registration service here
+    const response = await register(userData);
+    if (response && response.success) {
+      toast.success(response.message);
+      // Redirect to login page after successful registration
+      router.push('/auth/login');
+    } else {
+      toast.error(response?.message || "Registration failed");
+    }
+  };
 
   return (
     <>
@@ -64,7 +68,12 @@ export default function RegisterPage() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="" method="POST" className="space-y-6" onSubmit={handleSubmit}>
+          <form
+            action=""
+            method="POST"
+            className="space-y-6"
+            onSubmit={handleSubmit}
+          >
             <div className="grid grid-cols-2 gap-4">
               {/* First Name and Last Name */}
               <div>
@@ -82,7 +91,9 @@ export default function RegisterPage() {
                     required
                     autoComplete="given-name"
                     className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                    onChange={(e) => setUserData({ ...userData, firstName: e.target.value })}
+                    onChange={(e) =>
+                      setUserData({ ...userData, firstName: e.target.value })
+                    }
                     value={userData.firstName}
                   />
                 </div>
@@ -104,7 +115,9 @@ export default function RegisterPage() {
                     required
                     autoComplete="family-name"
                     className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                    onChange={(e) => setUserData({ ...userData, lastName: e.target.value })}
+                    onChange={(e) =>
+                      setUserData({ ...userData, lastName: e.target.value })
+                    }
                     value={userData.lastName}
                   />
                 </div>
@@ -127,7 +140,9 @@ export default function RegisterPage() {
                   required
                   autoComplete="email"
                   className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                  onChange={(e)=> setUserData({ ...userData, email: e.target.value })}
+                  onChange={(e) =>
+                    setUserData({ ...userData, email: e.target.value })
+                  }
                   value={userData.email}
                 />
               </div>
@@ -149,7 +164,9 @@ export default function RegisterPage() {
                   required
                   autoComplete="tel"
                   className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                  onChange={(e) => setUserData({ ...userData, mobile: e.target.value })}
+                  onChange={(e) =>
+                    setUserData({ ...userData, mobile: e.target.value })
+                  }
                   value={userData.mobile}
                 />
               </div>
@@ -171,7 +188,9 @@ export default function RegisterPage() {
                   required
                   autoComplete="address"
                   className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                  onChange={(e) => setUserData({ ...userData, address: e.target.value })}
+                  onChange={(e) =>
+                    setUserData({ ...userData, address: e.target.value })
+                  }
                   value={userData.address}
                 />
               </div>
@@ -193,7 +212,9 @@ export default function RegisterPage() {
                   required
                   autoComplete="postal-code"
                   className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                  onChange={(e) => setUserData({ ...userData, postalCode: e.target.value })}
+                  onChange={(e) =>
+                    setUserData({ ...userData, postalCode: e.target.value })
+                  }
                   value={userData.postalCode}
                 />
               </div>
@@ -216,7 +237,9 @@ export default function RegisterPage() {
                     required
                     autoComplete="new-password"
                     className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                    onChange={(e) => setUserData({ ...userData, password: e.target.value })}
+                    onChange={(e) =>
+                      setUserData({ ...userData, password: e.target.value })
+                    }
                     value={userData.password}
                   />
                 </div>
@@ -237,7 +260,12 @@ export default function RegisterPage() {
                     required
                     autoComplete="new-password"
                     className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
-                    onChange={(e) => setUserData({ ...userData, confirmPassword: e.target.value })}
+                    onChange={(e) =>
+                      setUserData({
+                        ...userData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
                     value={userData.confirmPassword}
                   />
                 </div>
@@ -272,10 +300,10 @@ export default function RegisterPage() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-button-primary-bg px-3 py-1.5 text-sm/6 font-semibold text-button-primary-text shadow-xs hover:bg-button-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                disabled={!agreeToTerms}
+                className="flex w-full justify-center rounded-md bg-button-primary-bg px-3 py-1.5 text-sm/6 font-semibold text-button-primary-text shadow-xs hover:bg-button-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50"
+                disabled={!agreeToTerms || loading}
               >
-                Sign up
+                {loading ? "Creating Account..." : "Sign up"}
               </button>
             </div>
           </form>

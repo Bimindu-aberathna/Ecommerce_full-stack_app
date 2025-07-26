@@ -1,15 +1,12 @@
-import { Metadata } from 'next';
+'use client';
+
+import { FeaturedProductCard } from '@/src/components/buyer/product/FeaturedProductCard';
 import 'react-toastify/dist/ReactToastify.css';
 /**
  * Home Page - Main landing page for buyers
  * Features: Hero section, featured products, categories, deals
  * This is the default route (/) for the e-commerce store
  */
-
-export const metadata: Metadata = {
-  title: 'E-Store - Your One-Stop Shopping Destination',
-  description: 'Discover amazing products at great prices. Shop electronics, fashion, home goods and more.',
-};
 
 export default function HomePage() {
   return (
@@ -38,8 +35,7 @@ export default function HomePage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Shop by Category</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {/* Category cards will be populated from API */}
+          <div className="overflow-x-auto gap-6 flex flex-center">
             <div className="bg-gray-100 rounded-lg p-6 text-center hover:shadow-lg transition">
               <div className="w-16 h-16 bg-blue-600 rounded-lg mx-auto mb-4"></div>
               <h3 className="font-semibold">Electronics</h3>
@@ -65,21 +61,100 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Featured Products</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Product cards will be populated from API */}
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                <div className="h-48 bg-gray-200"></div>
-                <div className="p-4">
-                  <h3 className="font-semibold mb-2">Product Name {i}</h3>
-                  <p className="text-gray-600 text-sm mb-2">Brand Name</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-blue-600">$99.99</span>
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                      Add to Cart
-                    </button>
-                  </div>
-                </div>
-              </div>
+            {/* Featured product cards */}
+            {[
+              {
+                id: '1',
+                name: 'Wireless Bluetooth Headphones',
+                description: 'Premium quality wireless headphones with noise cancellation',
+                price: 79.99,
+                originalPrice: 99.99,
+                images: ['/images/products/demo_product.jpg'],
+                categoryId: 'electronics',
+                category: { id: 'electronics', name: 'Electronics', slug: 'electronics', isActive: true },
+                brand: 'AudioTech',
+                sku: 'AT-WH-001',
+                stock: 25,
+                tags: ['wireless', 'bluetooth', 'headphones'],
+                features: ['Noise Cancellation', '30h Battery', 'Quick Charge'],
+                isActive: true,
+                sellerId: 'seller1',
+                seller: { id: 'seller1', email: 'seller@example.com', firstName: 'John', lastName: 'Seller', role: 'seller' as const, createdAt: new Date(), updatedAt: new Date() },
+                createdAt: new Date(),
+                updatedAt: new Date()
+              },
+              {
+                id: '2',
+                name: 'Smart Fitness Watch',
+                description: 'Track your fitness goals with this advanced smartwatch',
+                price: 149.99,
+                originalPrice: 199.99,
+                images: ['/images/products/demo_product.jpg'],
+                categoryId: 'electronics',
+                category: { id: 'electronics', name: 'Electronics', slug: 'electronics', isActive: true },
+                brand: 'FitTech',
+                sku: 'FT-SW-002',
+                stock: 15,
+                tags: ['smartwatch', 'fitness', 'health'],
+                features: ['Heart Rate Monitor', 'GPS', 'Water Resistant'],
+                isActive: true,
+                sellerId: 'seller1',
+                seller: { id: 'seller1', email: 'seller@example.com', firstName: 'John', lastName: 'Seller', role: 'seller' as const, createdAt: new Date(), updatedAt: new Date() },
+                createdAt: new Date(),
+                updatedAt: new Date()
+              },
+              {
+                id: '3',
+                name: 'Organic Cotton T-Shirt',
+                description: 'Comfortable and sustainable organic cotton t-shirt',
+                price: 24.99,
+                images: ['/images/products/demo_product.jpg'],
+                categoryId: 'fashion',
+                category: { id: 'fashion', name: 'Fashion', slug: 'fashion', isActive: true },
+                brand: 'EcoWear',
+                sku: 'EW-TS-003',
+                stock: 50,
+                tags: ['organic', 'cotton', 'sustainable'],
+                features: ['100% Organic Cotton', 'Machine Washable', 'Breathable'],
+                isActive: true,
+                sellerId: 'seller2',
+                seller: { id: 'seller2', email: 'seller2@example.com', firstName: 'Jane', lastName: 'Seller', role: 'seller' as const, createdAt: new Date(), updatedAt: new Date() },
+                createdAt: new Date(),
+                updatedAt: new Date()
+              },
+              {
+                id: '4',
+                name: 'Ceramic Plant Pot Set',
+                description: 'Beautiful handcrafted ceramic pots for your plants',
+                price: 34.99,
+                originalPrice: 44.99,
+                images: ['/images/products/demo_product.jpg'],
+                categoryId: 'home',
+                category: { id: 'home', name: 'Home & Garden', slug: 'home-garden', isActive: true },
+                brand: 'GreenThumb',
+                sku: 'GT-PP-004',
+                stock: 8,
+                tags: ['ceramic', 'plants', 'home decor'],
+                features: ['Drainage Holes', 'Saucer Included', 'Handcrafted'],
+                isActive: true,
+                sellerId: 'seller3',
+                seller: { id: 'seller3', email: 'seller3@example.com', firstName: 'Mike', lastName: 'Seller', role: 'seller' as const, createdAt: new Date(), updatedAt: new Date() },
+                createdAt: new Date(),
+                updatedAt: new Date()
+              }
+            ].map((product) => (
+              <FeaturedProductCard
+                key={product.id} 
+                product={product}
+                onAddToCart={(productId) => {
+                  console.log('Add to cart:', productId);
+                  // TODO: Implement cart functionality
+                }}
+                onAddToWishlist={(productId) => {
+                  console.log('Add to wishlist:', productId);
+                  // TODO: Implement wishlist functionality
+                }}
+              />
             ))}
           </div>
         </div>

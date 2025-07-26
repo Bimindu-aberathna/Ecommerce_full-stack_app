@@ -1,120 +1,52 @@
-import React from 'react';
-import { Product } from '../../../types';
-import { Card, CardContent } from '../../ui/Card';
-import { Button } from '../../ui/Button';
-import { formatCurrency } from '../../../lib/utils';
+import Image from 'next/image'
+import React from 'react'
 
-/**
- * ProductCard Component - Displays product information in a card format
- * Used in product listings, search results, and category pages
- * Includes product image, name, price, and action buttons
- */
+type Product = {
+  name: string;
+  brand: string;
+  image?: string;
+  rating?: number;
+  price: number;
+  inStock?: boolean;
+};
+
 interface ProductCardProps {
   product: Product;
-  onAddToCart?: (productId: string) => void;
-  onAddToWishlist?: (productId: string) => void;
-  className?: string;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-  onAddToCart,
-  onAddToWishlist,
-  className
-}) => {
-  const hasDiscount = product.originalPrice && product.originalPrice > product.price;
-  const discountPercentage = hasDiscount 
-    ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
-    : 0;
-
+function ProductCard({ product }: ProductCardProps) {
   return (
-    <Card className={className} href={`/products/${product.id}`}>
-      <div className="relative">
-        {/* Product Image */}
-        <div className="aspect-square overflow-hidden rounded-t-lg bg-gray-100">
-          <img
-            src={product.images[0] || '/images/placeholder-product.jpg'}
-            alt={product.name}
-            className="h-full w-full object-cover transition-transform hover:scale-105"
-          />
-        </div>
-
-        {/* Discount Badge */}
-        {hasDiscount && (
-          <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-            -{discountPercentage}%
-          </div>
-        )}
-
-        {/* Wishlist Button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            onAddToWishlist?.(product.id);
-          }}
-          className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
-          aria-label="Add to wishlist"
-        >
-          ❤️
-        </button>
-
-        {/* Out of Stock Overlay */}
-        {product.stock === 0 && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-t-lg">
-            <span className="text-white font-semibold">Out of Stock</span>
-          </div>
-        )}
+    <div
+      className="bg-white rounded-lg shadow-sm border-gray hover:shadow-md transition  transition-transform hover:scale-102"
+    >
+      <div className="aspect-square bg-gray-200 rounded-t-lg ">
+        <Image
+          src={product.image || `/images/products/default-product.jpg`}
+          alt={product.name}
+          className="h-full w-full object-cover rounded-t-lg"
+          width={300}
+          height={300}
+        />
       </div>
-
-      <CardContent className="p-4">
-        {/* Product Name */}
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-          {product.name}
-        </h3>
-
-        {/* Brand */}
-        <p className="text-sm text-gray-600 mb-2">{product.brand}</p>
-
-        {/* Rating */}
+      <div className="p-4">
+        <h3 className="font-semibold mb-2">{product.name}</h3>
+        <p className="text-gray-600 text-sm mb-2">{product.brand}</p>
         <div className="flex items-center mb-2">
-          <div className="flex text-yellow-400">
-            ⭐⭐⭐⭐⭐
-          </div>
-          <span className="text-sm text-gray-500 ml-1">(4.5)</span>
+          <div className="flex text-yellow-400 text-sm">★★★★★</div>
+          <span className="text-gray-500 text-sm ml-1">({product.rating ?? "N/A"})</span>
         </div>
-
-        {/* Price */}
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-blue-600">
-            {formatCurrency(product.price)}
+            {product.inStock ? `Rs. ${product.price}` : 
+              <span className="text-red-600">Out of Stock</span>}
           </span>
-          {hasDiscount && (
-            <span className="text-sm text-gray-500 line-through">
-              {formatCurrency(product.originalPrice!)}
-            </span>
-          )}
+          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm">
+            Add to Cart
+          </button>
         </div>
-
-        {/* Actions */}
-        <div className="flex gap-2">
-          <Button
-            className="flex-1"
-            onClick={() => {
-              onAddToCart?.(product.id);
-            }}
-            disabled={product.stock === 0}
-          >
-            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-          </Button>
-        </div>
-
-        {/* Stock Status */}
-        {product.stock > 0 && product.stock <= 10 && (
-          <p className="text-sm text-orange-600 mt-2">
-            Only {product.stock} left in stock!
-          </p>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
-};
+}
+
+export default ProductCard

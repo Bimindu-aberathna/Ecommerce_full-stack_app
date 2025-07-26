@@ -73,29 +73,50 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     defaultValue: true
   },
-  addressNumber: {
-    type: DataTypes.STRING(20),
-    allowNull: true
-  },
-  addressStreet: {
+  address: {
     type: DataTypes.STRING(255),
     allowNull: true
   },
-  addressCity: {
+
+  postalCode: {
     type: DataTypes.STRING(100),
-    allowNull: true
-  },
-  addressCountry: {
-    type: DataTypes.STRING(100),
-    allowNull: true
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: 'Postal code is required'
+      },
+      len: {
+        args: [1, 10],
+        msg: 'Postal code cannot exceed 100 characters'
+      }
+    }
   },
   phone: {
     type: DataTypes.STRING(20),
-    allowNull: true
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: 'Phone number is required'
+      },
+      len: {
+        args: [10, 20],
+        msg: 'Phone number must be between 10 and 20 characters'
+      },
+      is: {
+        args: /^[0-9\s\-\(\)]+$/,
+        msg: 'Phone number can only contain numbers, spaces, dashes, and parentheses'
+      }
+    }
   },
   avatar: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: true,
+    defaultValue: null,
+    validate: {
+      isUrl: {
+        msg: 'Avatar must be a valid URL'
+      }
+    }
   },
   lastLogin: {
     type: DataTypes.DATE,

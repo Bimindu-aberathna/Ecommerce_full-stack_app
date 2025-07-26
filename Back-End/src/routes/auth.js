@@ -18,7 +18,7 @@ const generateToken = (userId) => {
 // @access  Public
 router.post('/register', registerValidation, async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password , phone, address, postalCode, avatar } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
@@ -29,12 +29,17 @@ router.post('/register', registerValidation, async (req, res) => {
       });
     }
 
+
     // Create new user
     const user = await User.create({
       firstName,
       lastName,
       email,
       password,
+      phone,
+      address,
+      postalCode,
+      avatar,
     });
 
     // Generate token

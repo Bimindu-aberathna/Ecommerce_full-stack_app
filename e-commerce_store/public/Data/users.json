@@ -37,5 +37,18 @@
     "userType": "customer",
     "createdAt": "2025-01-17T09:15:00Z",
     "isActive": true
+  },
+  {
+    "id": "1753120414297",
+    "firstName": "Bimindu",
+    "lastName": "Aberathna",
+    "email": "andy@mail.com",
+    "phone": "0778945754",
+    "address": "Hospital road",
+    "postalCode": "12800",
+    "password": "sdfsdsdsds",
+    "userType": "customer",
+    "createdAt": "2025-07-21T17:53:34.297Z",
+    "isActive": true
   }
 ]
