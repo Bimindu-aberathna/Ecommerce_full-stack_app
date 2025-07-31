@@ -47,7 +47,7 @@ export default function ProductsPage() {
                   product={{
                     name: `Product ${i + 1}`,
                     brand: `Brand ${i + 1}`,
-                    image: `/images/products/default-product.jpg`,
+                    image: `https://firebasestorage.googleapis.com/v0/b/travel-app-29b3c.appspot.com/o/images%2F71Hx8b6HGbL._AC_SL1500_.jpg?alt=media&token=7ed50279-1983-432a-aafb-b9660b9282beg`,
                     price: (i + 1) * 10,
                     rating: 4.5,
                     inStock: i % 2 === 0 ? true : false, // Simulating stock availability

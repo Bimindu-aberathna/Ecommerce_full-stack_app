@@ -1,11 +1,41 @@
 "use client";
+import { loginUser } from "@/src/services/auth";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-
+import { toast, ToastContainer } from "react-toastify";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    const loginData = {
+      email,
+      password,
+    };
+    try {
+      const response = await loginUser(loginData);
+      if (response.success) {
+        router.push("/");
+      } else {
+        toast.error(response?.message || "Login failed");
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An error occurred";
+      toast.error(errorMessage);
+    }
+  };
+
   return (
     <>
       <div
@@ -27,7 +57,7 @@ export default function LoginPage() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" className="space-y-6">
+          <form onSubmit={handleLogin} method="POST" className="space-y-6">
             <div>
               <label
                 htmlFor="email"
@@ -40,6 +70,8 @@ export default function LoginPage() {
                   id="email"
                   name="email"
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
@@ -71,6 +103,8 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   required
                   autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6 pr-10"
                 />
                 <div
@@ -104,6 +138,7 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 }

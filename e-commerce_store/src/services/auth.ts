@@ -18,7 +18,6 @@ interface LoginData {
 }
 
 export const registerUser = async (userData: UserData) => {
-  console.log('Registering user:', userData);
   try {
     const response = await axios.post(`${apiUrl}/auth/register`, {
       firstName: userData.firstName,
@@ -60,7 +59,7 @@ export const loginUser = async (loginData: LoginData) => {
       email: loginData.email,
       password: loginData.password,
     });
-    
+    console.log('Login response:', response.data);
     if (response.status === 200) {
       return { 
         success: true, 

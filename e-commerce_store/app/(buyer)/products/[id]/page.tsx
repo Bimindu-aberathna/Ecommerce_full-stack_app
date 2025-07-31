@@ -1,3 +1,5 @@
+import ProductImages from "@/src/components/buyer/product/ProductImages";
+
 // Individual product page for displaying detailed product information 
 interface Props {
         //product data
@@ -18,9 +20,9 @@ export default async function page({ params }: Props) {
   "category": "Laptops",
   "price": 450599.99,
   "images": [
-    "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/macbook-air-og-202503?wid=1200&hei=630&fmt=jpeg&qlt=95&.v=1739216814915",
-    "https://thedisconnekt.com/wp-content/uploads/2024/03/Apple-MacBook-Air-15-inch-23.jpg",
-    "https://techtoro.io/image/catalog/Blogs/macbook%20m4%20news/macbook-m4-air.png"
+    "https://firebasestorage.googleapis.com/v0/b/travel-app-29b3c.appspot.com/o/images%2F71Hx8b6HGbL._AC_SL1500_.jpg?alt=media&token=7ed50279-1983-432a-aafb-b9660b9282be",
+    "https://firebasestorage.googleapis.com/v0/b/travel-app-29b3c.appspot.com/o/images%2F360-RA-category-icon-20221202.webp?alt=media&token=d81c3e75-c4d3-467f-bf05-5de9ac44e267",
+    "https://firebasestorage.googleapis.com/v0/b/travel-app-29b3c.appspot.com/o/images%2Fimages%20(2).jpg?alt=media&token=476879e0-cf11-4ae2-b9c0-e2eb48ff1450",
   ],
   "features": [
     "Apple M1 chip",
@@ -76,14 +78,10 @@ export default async function page({ params }: Props) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-        <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-            <img
-            src={product.images[0] || '/images/products/default-product.jpg'}
-            alt={product.name}
-            className="h-full w-full object-cover transition-transform hover:scale-105"
-            />
+        <div className="flex flex-col items-center justify-center">
+            <ProductImages images={product.images} />
         </div>
-    
+
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
             <p className="text-lg font-semibold text-blue-600 mb-4">Rs. {product.price.toLocaleString()}</p>
