@@ -1,13 +1,9 @@
-import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { configureStore, createSlice, PayloadAction, combineReducers } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import { 
-  TypedUseSelectorHook, 
-  useDispatch, 
-  useSelector
-} from "react-redux";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
-// User interface for better type safety
+// User interface
 interface User {
   id: string;
   firstName: string;
@@ -16,7 +12,7 @@ interface User {
   role: 'buyer' | 'seller';
 }
 
-interface AppState {
+interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
   token: string | null;
@@ -24,7 +20,7 @@ interface AppState {
   error: string | null;
 }
 
-const initialState: AppState = {
+const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
   token: null,
@@ -32,6 +28,11 @@ const initialState: AppState = {
   error: null,
 };
 
+interface cartState {
+  itemCount: number;
+}
+
+// Auth slice
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -40,13 +41,7 @@ const authSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    loginSuccess: (
-      state,
-      action: PayloadAction<{
-        user: User;
-        token: string;
-      }>
-    ) => {
+    loginSuccess: (state, action: PayloadAction<{ user: User; token: string }>) => {
       state.loading = false;
       state.isAuthenticated = true;
       state.user = action.payload.user;
@@ -78,6 +73,20 @@ const authSlice = createSlice({
   },
 });
 
+const initialCartState = {
+  itemCount: 0,
+};
+
+const cartSlice = createSlice({
+  name: "cart",
+  initialState: initialCartState,
+  reducers: {
+    setCount: (state, action: PayloadAction<number>) => {
+      state.itemCount = action.payload;
+    },
+  },
+});
+
 export const { 
   loginStart, 
   loginSuccess, 
@@ -87,60 +96,41 @@ export const {
   updateUser 
 } = authSlice.actions;
 
-// Persist configuration
+export const {
+  setCount
+} = cartSlice.actions;  
+
+// Persist config
 const persistConfig = {
-  key: "auth",
+  key: "root",
   storage,
-  whitelist: ['isAuthenticated', 'user', 'token'], // Only persist these fields
+  whitelist: ['auth', 'cart'],
 };
 
-const persistedReducer = persistReducer(persistConfig, authSlice.reducer);
+const rootReducer = combineReducers({
+  auth: authSlice.reducer,
+  cart: cartSlice.reducer,
+});
 
-// Store factory function
-export const makeStore = () => {
-  return configureStore({
-    reducer: {
-      auth: persistedReducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        serializableCheck: {
-          ignoredActions: [
-            "persist/PERSIST", 
-            "persist/REHYDRATE",
-            "persist/REGISTER"
-          ],
-        },
-      }),
-    devTools: process.env.NODE_ENV !== 'production',
-  });
-};
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+// Store
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE", "persist/REGISTER"],
+      },
+    }),
+});
+
+export const persistor = persistStore(store);
 
 // Types
-export type AppStore = ReturnType<typeof makeStore>;
-export type RootState = ReturnType<AppStore["getState"]>;
-export type AppDispatch = AppStore["dispatch"];
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
 // Typed hooks
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-
-// Store singleton for client-side
-let store: AppStore | undefined;
-
-export const getStore = (): AppStore => {
-  // Server-side: always create a new store
-  if (typeof window === 'undefined') {
-    return makeStore();
-  }
-  
-  // Client-side: reuse the store
-  if (!store) {
-    store = makeStore();
-  }
-  
-  return store;
-};
-
-// Persistor
-export const persistor = persistStore(getStore());

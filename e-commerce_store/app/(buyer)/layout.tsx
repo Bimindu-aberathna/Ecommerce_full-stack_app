@@ -1,4 +1,6 @@
-import CustomerNavbar from "@/src/components/buyer/navbar/navbar";
+import CustomerNavbar from "@/src/components/buyer/navbar/CustomerNavbar";
+
+
 
 export default function BuyerLayout({
   children,

@@ -1,5 +1,6 @@
 "use client";
-import { loginUser } from "@/src/services/auth";
+import { useAuth } from "@/src/hooks/useAuth";
+import { useCart } from "@/src/hooks/useCart";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -7,10 +8,12 @@ import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
 export default function LoginPage() {
+  const { login, loading } = useAuth();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { getCartCount } = useCart();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,13 +21,26 @@ export default function LoginPage() {
       toast.error("Please fill in all fields");
       return;
     }
-    const loginData = {
-      email,
-      password,
-    };
+
+    const loginData = { email, password };
+
     try {
-      const response = await loginUser(loginData);
+      const response = await login(loginData);
+
       if (response.success) {
+        const token = response.data?.data?.token;
+
+        if (token) {
+          try {
+            const cartResponse = await getCartCount(token);
+            if (cartResponse.success) {
+              console.log("Cart count:", cartResponse.itemCount);
+            }
+          } catch (cartError) {
+            console.warn("Failed to fetch cart count:", cartError);
+          }
+        }
+
         router.push("/");
       } else {
         toast.error(response?.message || "Login failed");
@@ -120,9 +136,10 @@ export default function LoginPage() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                disabled={loading}
+                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign in
+                {loading ? "Signing in..." : "Sign in"}
               </button>
             </div>
           </form>

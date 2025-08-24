@@ -1,6 +1,5 @@
 "use client";
-import { registerUser } from "@/src/services/auth";
-// import { useAuth } from "@/src/hooks/useAuth";
+import { useAuth } from "@/src/hooks/useAuth";
 import { validateUser } from "@/src/services/validation/validation.services";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -8,7 +7,7 @@ import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function RegisterPage() {
-  // const { register, loading } = useAuth();
+  const { register, loading } = useAuth();
   const [userData, setUserData] = useState({
     firstName: "",
     lastName: "",
@@ -33,12 +32,11 @@ export default function RegisterPage() {
     }
     if (userData.password !== userData.confirmPassword) {
       toast.error("Passwords do not match");
-
       return;
     }
 
-    // Call registration service here
-    const response = await registerUser(userData);
+    // Call registration service through useAuth hook
+    const response = await register(userData);
     if (response && response.success) {
       toast.success(response.message);
       // Redirect to login page after successful registration
@@ -302,9 +300,9 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-button-primary-bg px-3 py-1.5 text-sm/6 font-semibold text-button-primary-text shadow-xs hover:bg-button-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50"
-                disabled={!agreeToTerms}
+                disabled={!agreeToTerms || loading}
               >
-                Sign up
+                {loading ? "Creating Account..." : "Sign up"}
               </button>
             </div>
           </form>

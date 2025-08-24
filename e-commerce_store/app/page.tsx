@@ -21,7 +21,7 @@ export default function HomePage() {
             Discover amazing products at unbeatable prices. Shop with confidence and enjoy fast, free shipping.
           </p>
           <div className="space-x-4">
-            <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+            <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition" onClick={() => window.location.href = '/products'}>
               Shop Now
             </button>
             <button className="border border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition">
@@ -148,11 +148,9 @@ export default function HomePage() {
                 product={product}
                 onAddToCart={(productId) => {
                   console.log('Add to cart:', productId);
-                  // TODO: Implement cart functionality
                 }}
                 onAddToWishlist={(productId) => {
                   console.log('Add to wishlist:', productId);
-                  // TODO: Implement wishlist functionality
                 }}
               />
             ))}

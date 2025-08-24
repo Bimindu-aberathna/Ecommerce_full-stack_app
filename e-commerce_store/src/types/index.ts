@@ -170,6 +170,7 @@ export interface PaginatedResponse<T> {
 // Filter and search types
 export interface ProductFilters {
   category?: string;
+  subCategory?: string;
   minPrice?: number;
   maxPrice?: number;
   brand?: string;
@@ -179,8 +180,8 @@ export interface ProductFilters {
 }
 
 export interface SortOptions {
-  field: string;
-  order: 'asc' | 'desc';
+  sortBy: string;
+  sortOrder: 'ASC' | 'DESC';
 }
 
 // Form types
@@ -221,4 +222,28 @@ export interface ButtonProps {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
+}
+
+export type fetchCartObj = {
+  isAuthenticated: boolean;
+  token: string;
+}
+
+export type addToCartObj = {
+  isAuthenticated: boolean;
+  token: string | null;
+  varietyId: string | number | null;
+  quantity: number;
+}
+
+export type updateCartObj = {
+  isAuthenticated: boolean;
+  token: string | null;
+  itemId: string | number | null;
+  quantity: number;
+}
+export type removeCartItemObj = {
+  isAuthenticated: boolean;
+  token: string | null;
+  itemId: string | number | null;
 }

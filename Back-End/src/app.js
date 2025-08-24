@@ -11,6 +11,8 @@ const productRoutes = require('./routes/product');
 const categoryRoutes = require('./routes/category');
 const subcategoryRoutes = require('./routes/subcategory');
 const userRoutes = require('./routes/users');
+const cartRoutes = require('./routes/cart');
+
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -48,6 +50,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/subcategories', subcategoryRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -56,6 +59,9 @@ app.get('/api/health', (req, res) => {
     message: 'Server is running',
     timestamp: new Date().toISOString(),
   });
+});
+app.get('/',(req,res)=>{
+  res.send('Welcome to the E-Commerce API');
 });
 
 // Error handling middleware

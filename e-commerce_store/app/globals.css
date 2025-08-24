@@ -104,3 +104,70 @@ button {
 .thumbnail-btn.active:hover {
   border-color: var(--primary-hover);
 }
+
+/* Cart quantity buttons */
+.cart-quantity-btn {
+  background: none;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.cart-quantity-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  
+}
+
+.cart-quantity-btn:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Cart remove button */
+.cart-remove-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cart-remove-btn:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+/* Add to globals.css */
+.pagination-btn {
+  background: none;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-btn.active {
+  background-color: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}

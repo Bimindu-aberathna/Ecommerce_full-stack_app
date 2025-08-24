@@ -26,7 +26,7 @@ export class ProductService {
       ...(filters && Object.fromEntries(
         Object.entries(filters).filter(([_, value]) => value !== undefined)
       )),
-      ...(sort && { sortBy: sort.field, sortOrder: sort.order })
+      ...(sort && { sortBy: sort.sortBy, sortOrder: sort.sortOrder })
     });
 
     return apiClient.get<PaginatedResponse<Product>>(`/products?${params}`);
