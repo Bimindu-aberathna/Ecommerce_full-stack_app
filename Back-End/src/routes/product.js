@@ -5,7 +5,7 @@ const { auth, adminAuth } = require('../middleware/auth');
 const { productValidation, updateProductValidation, handleMultipleDefaultImages } = require('../middleware/validation');
 const router = express.Router();
 
-
+// get all products after filtering and sorting
 router.get('/', async (req, res) => {
   try {
     const {
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
       sortOrder = 'DESC',
       search,
       category,
-      subCategory,
+      subcategory,
       minPrice,
       maxPrice,
       brand,
@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
         { description: { [Op.like]: `%${search}%` } }
       ];
     }
-
+    // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+subCategory)
     // Filter by price range
     if (minPrice || maxPrice) {
       whereConditions.price = {};
@@ -65,8 +65,8 @@ router.get('/', async (req, res) => {
     }
 
     // Filter by subcategory
-    if (subCategory) {
-      subCategoryWhere.id = subCategory;
+    if (subcategory) {
+      subCategoryWhere.id = subcategory;
     }
 
     // Calculate offset for pagination

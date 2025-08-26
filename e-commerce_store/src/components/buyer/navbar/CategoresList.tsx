@@ -34,12 +34,12 @@ export default function CategoriesList() {
     SubCategory[] | null
   >(null);
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
   const fetchCategories = async () => {
     if (categories.length > 0) return;
-    
+
     setLoading(true);
     try {
       const response = await axios.get(
@@ -57,7 +57,6 @@ export default function CategoriesList() {
       setLoading(false);
     }
   };
-
 
   // Handle subcategory toggle
   const handleSubCategoryToggle = (e: React.MouseEvent, categoryId: number) => {
@@ -94,7 +93,10 @@ export default function CategoriesList() {
             fetchCategories(); // Lazy load categories when menu opens
           }}
         >
-          <span className="absolute -inset-1.5" onClick={() => setMenuOpen(!menuOpen)}/>
+          <span
+            className="absolute -inset-1.5"
+            onClick={() => setMenuOpen(!menuOpen)}
+          />
           <span className="sr-only">Categories</span>
           <p className="text-white font-bold">
             Categories{" "}
@@ -124,60 +126,74 @@ export default function CategoriesList() {
             </p>
           </MenuItem>
         ) : (
-          categories.map((category) => (
-            <div
-              key={category.id}
-              className="relative"
-              onMouseLeave={handleMouseLeave}
-            >
-              <MenuItem>
-                <div className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  <Link
-                    href={`/products?category=${category.id}`}
-                    className="flex-1"
-                  >
-                    {category.name}
-                  </Link>
-                  {category.subCategories &&
-                    category.subCategories.length > 0 && (
-                      <button
-                        onClick={(e) => handleSubCategoryToggle(e, category.id)}
-                        className="ml-2 p-1 rounded-3xl hover:text-blue-600 cursor-pointer"
-                        style={{
-                          backgroundColor: "rgba(0, 0, 0, 0.4)",
-                          borderRadius: "50%",
-                          padding: "0.25rem",
-                        }}
-                      >
-                        <ChevronRight
-                          className={`w-4 h-4 transition-transform ${
-                            activeCategoryId === category.id ? "rotate-90" : ""
-                          }`}
-                        />
-                      </button>
-                    )}
-                </div>
-              </MenuItem>
+          <>
+            <MenuItem>
+              <div className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <Link href={`/products`} className="flex-1">
+                  All
+                </Link>
+              </div>
+            </MenuItem>
 
-              {/* Subcategories dropdown */}
-              {activeSubCategories &&
-                activeCategoryId === category.id &&
-                activeSubCategories.length > 0 && (
-                  <div className="absolute left-full top-0 z-20 w-48 bg-white shadow-lg rounded-md border border-gray-200">
-                    {activeSubCategories.map((subCategory) => (
-                      <MenuItem key={subCategory.id}>
-                        <Link
-                          href={`/products?subcategory=${subCategory.id}`}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                className="relative"
+                onMouseLeave={handleMouseLeave}
+              >
+                <MenuItem>
+                  <div className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link
+                      href={`/products?category=${category.id}`}
+                      className="flex-1"
+                    >
+                      {category.name}
+                    </Link>
+                    {category.subCategories &&
+                      category.subCategories.length > 0 && (
+                        <button
+                          onClick={(e) =>
+                            handleSubCategoryToggle(e, category.id)
+                          }
+                          className="ml-2 p-1 rounded-3xl hover:text-blue-600 cursor-pointer"
+                          style={{
+                            backgroundColor: "rgba(0, 0, 0, 0.4)",
+                            borderRadius: "50%",
+                            padding: "0.25rem",
+                          }}
                         >
-                          {subCategory.name}
-                        </Link>
-                      </MenuItem>
-                    ))}
+                          <ChevronRight
+                            className={`w-4 h-4 transition-transform ${
+                              activeCategoryId === category.id
+                                ? "rotate-90"
+                                : ""
+                            }`}
+                          />
+                        </button>
+                      )}
                   </div>
-                )}
-            </div>
-          ))
+                </MenuItem>
+
+                {/* Subcategories dropdown */}
+                {activeSubCategories &&
+                  activeCategoryId === category.id &&
+                  activeSubCategories.length > 0 && (
+                    <div className="absolute left-full top-0 z-20 w-48 bg-white shadow-lg rounded-md border border-gray-200">
+                      {activeSubCategories.map((subCategory) => (
+                        <MenuItem key={subCategory.id}>
+                          <Link
+                            href={`/products?subcategory=${subCategory.id}`}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            {subCategory.name}
+                          </Link>
+                        </MenuItem>
+                      ))}
+                    </div>
+                  )}
+              </div>
+            ))}
+          </>
         )}
       </MenuItems>
 
