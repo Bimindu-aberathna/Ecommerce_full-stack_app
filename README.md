@@ -2,20 +2,6 @@
 
 A modern, scalable e-commerce platform built with Next.js frontend and Node.js backend. This application provides a complete solution for online retail with separate interfaces for buyers and sellers.
 
-## 🚀 Live Demo
-<!-- Add your deployed links here -->
-- **Frontend**: [Live Demo](your-vercel-url)
-- **Backend API**: [API Documentation](your-backend-url)
-
-## 📋 Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Environment Setup](#environment-setup)
-- [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
-- [Contributing](#contributing)
 
 ## ✨ Features
 
@@ -99,7 +85,7 @@ E-Commerce Store/
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/your-username/e-commerce-store.git
+git clone https://github.com/Bimindu-aberathna/Ecommerce_full-stack_app.git
 cd e-commerce-store
 ```
 
@@ -193,41 +179,3 @@ cd e-commerce_store
 npm test
 ```
 
-## 🚀 Deployment
-
-### Backend Deployment
-- Can be deployed on Railway, Heroku, or DigitalOcean
-- Ensure environment variables are set in production
-
-### Frontend Deployment
-- Easily deployed on Vercel or Netlify
-- Connect your GitHub repository for automatic deployments
-
-## 🤝 Contributing
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Developer
-
-**Your Name**
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/your-profile)
-- Portfolio: [Your Portfolio](https://your-portfolio.com)
-- Email: your.email@example.com
-
-## 🙏 Acknowledgments
-
-- Thanks to the Next.js team for the amazing framework
-- Express.js for the robust backend framework
-- Tailwind CSS for the utility-first CSS framework
-
----
-
-⭐ Star this repository if you found it helpful!
