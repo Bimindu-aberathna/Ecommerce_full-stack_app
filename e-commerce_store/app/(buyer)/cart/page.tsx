@@ -1,8 +1,13 @@
 "use client";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useCart } from "@/src/hooks/useCart";
-import { fetchCart, removeCartItem, updateCart } from "@/src/services/cart.service";
-import { Trash2 } from "lucide-react";
+import {
+  deleteCart,
+  fetchCart,
+  removeCartItem,
+  updateCart,
+} from "@/src/services/cart.service";
+import { ClipboardX, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
@@ -36,7 +41,7 @@ function CartPage() {
   const [cart, setCart] = useState<cart | null>(null);
   const { isAuthenticated, token } = useAuth();
   const [cartExists, setCartExists] = useState<boolean>(false);
-  const {updateCartCount} = useCart();
+  const { updateCartCount } = useCart();
 
   const getCart = async () => {
     const response = await fetchCart({ isAuthenticated, token: token ?? "" });
@@ -53,51 +58,88 @@ function CartPage() {
   }, [isAuthenticated, token]);
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
-  try {
-    const response = await updateCart({ 
-      isAuthenticated, 
-      token: token ?? "", 
-      itemId, 
-      quantity: newQuantity 
-    });
-    
-    if (response.success) {
-      if (newQuantity <= 0) {
-        toast.success('Item removed from cart');
+    try {
+      const response = await updateCart({
+        isAuthenticated,
+        token: token ?? "",
+        itemId,
+        quantity: newQuantity,
+      });
+
+      if (response.success) {
+        if (newQuantity <= 0) {
+          toast.success("Item removed from cart");
+        } else {
+          toast.success("Cart updated successfully");
+        }
+        getCart(); // Refresh cart to reflect changes
       } else {
-        toast.success('Cart updated successfully');
+        toast.error(response.message || "Failed to update cart");
       }
-      getCart(); // Refresh cart to reflect changes
-    } else {
-      toast.error(response.message || "Failed to update cart");
+    } catch (error) {
+      toast.error("Failed to update cart");
+      console.error("Cart update error:", error);
     }
-  } catch (error) {
-    toast.error("Failed to update cart");
-    console.error('Cart update error:', error);
-  }
-};
+  };
 
-const removeItem=async(itemId: string)=>{
-  try {
-    const response = await removeCartItem({ isAuthenticated, token: token ?? "", itemId });
-    if (response.success) {
-      toast.success('Item removed from cart');
-      getCart();
-    } else {
-      toast.error(response.message || "Failed to remove item");
+  const handleDeleteCart = async() => {
+    if(!cart?.id) {
+      toast.error("No cart found, Try refreshing the page");
+      return;
     }
-  } catch (error) {
-    toast.error("Failed to remove item");
+    try {
+      const response = await deleteCart({
+        isAuthenticated,
+        token: token ?? "",
+        cartId: cart?.id ,
+      });
+      if (response.success) {
+        toast.success("Cart cleared");
+        setCart(null);
+        setCartExists(false);
+        updateCartCount(0);
+      } else {
+        toast.error(response.message || "Failed to clear cart");
+      }
+    } catch (error) {
+      toast.error("Failed to clear cart");
+      console.error("Clear cart error:", error);
+    }
   }
-};
 
+  const removeItem = async (itemId: string) => {
+    try {
+      const response = await removeCartItem({
+        isAuthenticated,
+        token: token ?? "",
+        itemId,
+      });
+      if (response.success) {
+        toast.success("Item removed from cart");
+        getCart();
+      } else {
+        toast.error(response.message || "Failed to remove item");
+      }
+    } catch (error) {
+      toast.error("Failed to remove item");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 px-2 sm:py-10 sm:px-0">
       <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-4 sm:p-8">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-blue-800 text-center sm:text-left">
-          My Cart
-        </h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-blue-800 text-center sm:text-left">
+            My Cart
+          </h1>
+          {cartExists && (<button
+            className="text-sm !text-red-500 hover:text-gray-700 flex gap-1 !bg-transparent !border-red-500"
+            onClick={handleDeleteCart}
+          >
+            <ClipboardX />
+            Clear Cart
+          </button>)}
+        </div>
         {cartExists ? (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {/* Cart Items */}
@@ -123,7 +165,8 @@ const removeItem=async(itemId: string)=>{
                         {item?.productVariety?.product?.name}
                       </h2>
                       <p className="text-xs sm:text-sm text-gray-500">
-                        {item?.productVariety?.product?.brand} • {item?.productVariety?.name}
+                        {item?.productVariety?.product?.brand} •{" "}
+                        {item?.productVariety?.name}
                       </p>
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center">
@@ -134,7 +177,9 @@ const removeItem=async(itemId: string)=>{
                             -
                           </button>
 
-                          <span className="px-3 sm:px-4 font-medium">{item.quantity}</span>
+                          <span className="px-3 sm:px-4 font-medium">
+                            {item.quantity}
+                          </span>
 
                           <button
                             className="cart-quantity-btn px-2 py-1 border rounded hover:bg-gray-100 transition-colors"
@@ -146,7 +191,7 @@ const removeItem=async(itemId: string)=>{
 
                         <button
                           className="cart-remove-btn text-red-500 hover:text-red-700 p-1 rounded transition-colors"
-                          onClick={() => removeItem(item?.id)} 
+                          onClick={() => removeItem(item?.id)}
                           title="Remove item"
                         >
                           <Trash2 size={16} />

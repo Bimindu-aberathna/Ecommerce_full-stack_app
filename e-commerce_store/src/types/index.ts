@@ -247,3 +247,14 @@ export type removeCartItemObj = {
   token: string | null;
   itemId: string | number | null;
 }
+
+export type updateUserProfileObj = {
+  firstName: string,
+   lastName: string,
+  email: string,
+        phone: string | null,
+        avatar: string | null,
+        address: string | null,
+        postalCode: string | null,
+        file: File | null
+}

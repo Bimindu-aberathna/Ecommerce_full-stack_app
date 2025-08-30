@@ -448,6 +448,7 @@ router.delete("/delete/:itemId", auth, async (req, res) => {
       }],
       transaction,
     });
+    
 
     if (deletedCount === 0) {
       await transaction.rollback();
@@ -472,6 +473,47 @@ router.delete("/delete/:itemId", auth, async (req, res) => {
       message: "Error deleting cart item",
     });
   }
+});
+
+//delete cart
+router.delete("/:cartId", auth, async (req, res) => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const userId = req.user.id;
+    const cartId = req.params.cartId;
+
+    // Find and delete in one operation with ownership check
+    const deletedCount = await Cart.destroy({
+      where: { id: cartId, userId: userId, status: "pending" },
+      cascade: true,
+      transaction,
+    });
+
+    if (deletedCount === 0) {
+      await transaction.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "Cart not found or you do not have permission to delete it",
+      });
+    }
+
+    await transaction.commit();
+
+    return res.status(200).json({
+      success: true,
+      message: "Cart removed successfully"
+    });
+
+  } catch (error) {
+    await transaction.rollback();
+    console.error("Delete cart error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting cart",
+    });
+  }
+
 });
 
 module.exports = router;

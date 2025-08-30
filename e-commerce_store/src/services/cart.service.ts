@@ -137,9 +137,47 @@ export class CartService {
     }
   }
 
+  static async deleteCart({
+    isAuthenticated,
+    token,
+    cartId
+  }: {
+    isAuthenticated: boolean;
+    token: string;
+    cartId: string;
+  }) {
+    if (!isAuthenticated) {
+      return { success: false, message: 'User not authenticated' };
+    }
+    if (!token) {
+      return { success: false, message: 'No token provided' };
+    }
+    try {
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/cart/${cartId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return {
+          success: false,
+          message: error.response.data.message || 'Remove item failed'
+        };
+      }
+      return { success: false, message: 'Network error' };
+    }
+  }
+
 }
 
 export const addToCart = CartService.addToCart;
 export const fetchCart = CartService.fetchCart;
 export const updateCart = CartService.updateCart;
 export const removeCartItem = CartService.removeItem;
+export const deleteCart = CartService.deleteCart;

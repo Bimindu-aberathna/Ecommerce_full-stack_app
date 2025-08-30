@@ -32,6 +32,18 @@ interface cartState {
   itemCount: number;
 }
 
+interface LoadingState {
+  isLoading: boolean;
+  loadingMessage: string | null;
+  loadingType: 'auth' | 'profile' | 'products' | 'cart' | 'orders' | 'general' | null;
+}
+
+const initialLoadingState: LoadingState = {
+  isLoading: false,
+  loadingMessage: null,
+  loadingType: null,
+};
+
 // Auth slice
 const authSlice = createSlice({
   name: "auth",
@@ -87,6 +99,32 @@ const cartSlice = createSlice({
   },
 });
 
+const loadingSlice = createSlice({
+  name: "loading",
+  initialState: initialLoadingState,
+  reducers: {
+    startLoading: (state, action: PayloadAction<{ 
+      message?: string; 
+      type?: LoadingState['loadingType'] 
+    }>) => {
+      state.isLoading = true;
+      state.loadingMessage = action.payload.message || "Loading...";
+      state.loadingType = action.payload.type || "general";
+    },
+    stopLoading: (state) => {
+      state.isLoading = false;
+      state.loadingMessage = null;
+      state.loadingType = null;
+    },
+    updateLoadingMessage: (state, action: PayloadAction<string>) => {
+      if (state.isLoading) {
+        state.loadingMessage = action.payload;
+      }
+    },
+  },
+});
+
+
 export const { 
   loginStart, 
   loginSuccess, 
@@ -100,6 +138,12 @@ export const {
   setCount
 } = cartSlice.actions;  
 
+export const {
+  startLoading,
+  stopLoading,
+  updateLoadingMessage
+} = loadingSlice.actions;
+
 // Persist config
 const persistConfig = {
   key: "root",
@@ -110,6 +154,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authSlice.reducer,
   cart: cartSlice.reducer,
+  loading: loadingSlice.reducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

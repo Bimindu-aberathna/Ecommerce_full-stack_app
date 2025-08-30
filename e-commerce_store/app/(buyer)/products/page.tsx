@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Browse our wide selection of products",
 };
 
-// ✅ Fix: Await searchParams in Next.js 15+
+
 export default async function ProductsPage({
   searchParams,
 }: {
@@ -20,7 +20,7 @@ export default async function ProductsPage({
     page?: string;
   }>;
 }) {
-  // ✅ Await the searchParams Promise
+  
   const params = await searchParams;
 
   const products = await fetchProducts({
@@ -85,21 +85,33 @@ async function fetchProducts(params: {
     searchParams.set("page", params.page.toString());
     searchParams.set("limit", "12");
 
-    console.log("Fetching products with params:", searchParams.toString()); // ✅ Debug log
+    console.log("Fetching products with params:", searchParams.toString()); 
 
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/products?${searchParams}`
-    );
+    const response = await fetch(
+  `${process.env.NEXT_PUBLIC_API_URL}/products?${searchParams}`,
+  {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    next: { revalidate: 60 } 
+  }
+);
 
     if (response.status < 200 || response.status >= 300) {
       throw new Error("Failed to fetch products");
     }
 
-    console.log("Products fetched successfully:", response.data); // ✅ Debug log
-    return response.data;
+    const data = await response.json();
+    if (data) {
+      return data;
+    } else {
+      return {
+        data: { products: [] },
+      };
+    }
   } catch (error) {
     console.error("Error fetching products:", error);
-    // ✅ Return empty data structure on error
     return {
       data: { products: [] },
       total: 0,
