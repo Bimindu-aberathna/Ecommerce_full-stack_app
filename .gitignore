@@ -90,3 +90,4 @@ coverage/
 *.tgz
 *.tar.gz
 .cache/
+todo.html
