@@ -1,11 +1,57 @@
 "use client";
+import { useAuth } from "@/src/hooks/useAuth";
+import { useCart } from "@/src/hooks/useCart";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-
+import { toast, ToastContainer } from "react-toastify";
 
 export default function LoginPage() {
+  const { login, loading } = useAuth();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { getCartCount } = useCart();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    const loginData = { email, password };
+
+    try {
+      const response = await login(loginData);
+
+      if (response.success) {
+        const token = response.data?.data?.token;
+
+        if (token) {
+          try {
+            const cartResponse = await getCartCount(token);
+            if (cartResponse.success) {
+              console.log("Cart count:", cartResponse.itemCount);
+            }
+          } catch (cartError) {
+            console.warn("Failed to fetch cart count:", cartError);
+          }
+        }
+
+        router.push("/");
+      } else {
+        toast.error(response?.message || "Login failed");
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An error occurred";
+      toast.error(errorMessage);
+    }
+  };
+
   return (
     <>
       <div
@@ -27,7 +73,7 @@ export default function LoginPage() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" className="space-y-6">
+          <form onSubmit={handleLogin} method="POST" className="space-y-6">
             <div>
               <label
                 htmlFor="email"
@@ -40,6 +86,8 @@ export default function LoginPage() {
                   id="email"
                   name="email"
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
@@ -71,6 +119,8 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   required
                   autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6 pr-10"
                 />
                 <div
@@ -86,9 +136,10 @@ export default function LoginPage() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                disabled={loading}
+                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign in
+                {loading ? "Signing in..." : "Sign in"}
               </button>
             </div>
           </form>
@@ -104,6 +155,7 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 }

@@ -1,12 +1,6 @@
-import { useAppDispatch, useAppSelector } from "@/src/store";
-import { 
-  loginStart, 
-  loginSuccess, 
-  loginFailure, 
-  logout as logoutAction,
-  clearError 
-} from "@/src/store";
-import { registerUser, loginUser } from "@/src/services/auth";
+import { useAppSelector, useAppDispatch } from "@/src/store";
+import { loginStart, loginSuccess, loginFailure, logout } from "@/src/store";
+import { AuthService } from "@/src/services/auth.service";
 
 interface LoginCredentials {
   email: string;
@@ -30,20 +24,18 @@ export const useAuth = () => {
   );
 
   const login = async (credentials: LoginCredentials) => {
+    dispatch(loginStart());
     try {
-      dispatch(loginStart());
-      const response = await loginUser(credentials);
-      
+      const response = await AuthService.login(credentials);
       if (response.success && response.data) {
         dispatch(loginSuccess({
-          user: response.data.user,
-          token: response.data.token
+          user: response.data?.data?.user,
+          token: response.data?.data?.token
         }));
-        return { success: true };
       } else {
-        dispatch(loginFailure(response.message || 'Login failed'));
-        return { success: false, message: response.message };
+        dispatch(loginFailure(response.message));
       }
+      return response;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed';
       dispatch(loginFailure(message));
@@ -52,18 +44,13 @@ export const useAuth = () => {
   };
 
   const register = async (userData: RegisterData) => {
+    dispatch(loginStart());
     try {
-      dispatch(loginStart());
-      const response = await registerUser(userData);
-      
-      if (response.success) {
-        // Registration successful, but user needs to login
-        dispatch(clearError());
-        return { success: true, message: response.message };
-      } else {
-        dispatch(loginFailure(response.message || 'Registration failed'));
-        return { success: false, message: response.message };
+      const response = await AuthService.register(userData);
+      if (!response.success) {
+        dispatch(loginFailure(response.message));
       }
+      return response;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Registration failed';
       dispatch(loginFailure(message));
@@ -71,12 +58,8 @@ export const useAuth = () => {
     }
   };
 
-  const logout = () => {
-    dispatch(logoutAction());
-  };
-
-  const clearAuthError = () => {
-    dispatch(clearError());
+  const handleLogout = () => {
+    dispatch(logout());
   };
 
   return {
@@ -90,8 +73,7 @@ export const useAuth = () => {
     // Actions
     login,
     register,
-    logout,
-    clearError: clearAuthError,
+    logout: handleLogout,
     
     // Computed values
     isLoggedIn: isAuthenticated && !!user,

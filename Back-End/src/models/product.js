@@ -160,7 +160,7 @@ const Product = sequelize.define('Product', {
     {
       name: 'idx_product_brand',
       fields: ['brand']
-    },
+    }, 
     {
       name: 'idx_product_active',
       fields: ['isActive']
