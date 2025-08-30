@@ -1,108 +1,83 @@
-import { apiClient } from '../lib/api-client';
-import { User, LoginFormData, RegisterFormData, ApiResponse } from '../types';
+import axios from "axios";
 
-/**
- * Authentication Service - Handles user login, registration, and auth state
- * Used for both buyer and seller authentication
- */
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+interface UserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobile: string;
+  address: string;
+  postalCode: string;
+  password: string;
+}
+
+interface LoginData {
+  email: string;
+  password: string;
+}
+
 export class AuthService {
-  
-  // User login
-  static async login(credentials: LoginFormData): Promise<ApiResponse<{ user: User; token: string }>> {
-    const response = await apiClient.post<ApiResponse<{ user: User; token: string }>>(
-      '/auth/login', 
-      credentials
-    );
-    
-    // Store token in localStorage if login successful
-    if (response.success && response.data?.token) {
-      localStorage.setItem('authToken', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-    }
-    
-    return response;
-  }
-
-  // User registration
-  static async register(userData: RegisterFormData): Promise<ApiResponse<{ user: User; token: string }>> {
-    const response = await apiClient.post<ApiResponse<{ user: User; token: string }>>(
-      '/auth/register', 
-      userData
-    );
-    
-    // Store token in localStorage if registration successful
-    if (response.success && response.data?.token) {
-      localStorage.setItem('authToken', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-    }
-    
-    return response;
-  }
-
-  // User logout
-  static async logout(): Promise<void> {
+  static async register(userData: UserData) {
     try {
-      await apiClient.post('/auth/logout');
+      const response = await axios.post(`${apiUrl}/auth/register`, {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        password: userData.password,
+        address: userData.address,
+        postalCode: userData.postalCode,
+        phone: userData.mobile,
+      });
+      
+      if (response.status === 201) {
+        return { success: true, message: 'Registration successful' };
+      } else {
+        return { success: false, message: 'Registration failed' };
+      }
     } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      // Clear local storage regardless of API call result
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
+      console.error('Registration error:', error);
+      if (axios.isAxiosError(error) && error.response) {
+        if (error.response.data.errors && error.response.data.errors.length > 0) {
+          return { 
+            success: false, 
+            message: error.response.data.errors[0].msg || 'Registration failed' 
+          };
+        }
+        return { 
+          success: false, 
+          message: error.response.data.message || 'Registration failed' 
+        };
+      }
+      return { success: false, message: 'Network error' };
     }
   }
 
-  // Get current user from localStorage
-  static getCurrentUser(): User | null {
-    if (typeof window === 'undefined') return null;
-    
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return null;
-    
+  static async login(loginData: LoginData) {
     try {
-      return JSON.parse(userStr);
-    } catch {
-      return null;
+      const response = await axios.post(`${apiUrl}/auth/login`, {
+        email: loginData.email,
+        password: loginData.password,
+      });
+      
+      if (response.status === 200) {
+        return { 
+          success: true, 
+          message: 'Login successful',
+          data: response.data 
+        };
+      } else {
+        return { success: false, message: 'Login failed' };
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      if (axios.isAxiosError(error) && error.response) {
+        return { 
+          success: false, 
+          message: error.response.data.message || 'Login failed' 
+        };
+      }
+      return { success: false, message: 'Network error' };
     }
-  }
-
-  // Check if user is authenticated
-  static isAuthenticated(): boolean {
-    if (typeof window === 'undefined') return false;
-    return !!localStorage.getItem('authToken');
-  }
-
-  // Get auth token
-  static getToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('authToken');
-  }
-
-  // Refresh user profile
-  static async getProfile(): Promise<User> {
-    return apiClient.get<User>('/auth/profile');
-  }
-
-  // Update user profile
-  static async updateProfile(userData: Partial<User>): Promise<User> {
-    const response = await apiClient.put<User>('/auth/profile', userData);
-    
-    // Update localStorage with new user data
-    localStorage.setItem('user', JSON.stringify(response));
-    
-    return response;
-  }
-
-  // Forgot password
-  static async forgotPassword(email: string): Promise<ApiResponse<null>> {
-    return apiClient.post<ApiResponse<null>>('/auth/forgot-password', { email });
-  }
-
-  // Reset password
-  static async resetPassword(token: string, newPassword: string): Promise<ApiResponse<null>> {
-    return apiClient.post<ApiResponse<null>>('/auth/reset-password', { 
-      token, 
-      password: newPassword 
-    });
   }
 }

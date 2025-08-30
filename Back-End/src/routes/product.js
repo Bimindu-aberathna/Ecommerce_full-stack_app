@@ -5,21 +5,17 @@ const { auth, adminAuth } = require('../middleware/auth');
 const { productValidation, updateProductValidation, handleMultipleDefaultImages } = require('../middleware/validation');
 const router = express.Router();
 
-/**
- * @route   GET /api/products
- * @desc    Get all products with filtering, sorting, and pagination
- * @access  Public
- */
+// get all products after filtering and sorting
 router.get('/', async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 10,
+      limit = 12,
       sortBy = 'createdAt',
       sortOrder = 'DESC',
       search,
       category,
-      subCategory,
+      subcategory,
       minPrice,
       maxPrice,
       brand,
@@ -40,7 +36,7 @@ router.get('/', async (req, res) => {
         { description: { [Op.like]: `%${search}%` } }
       ];
     }
-
+    // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+subCategory)
     // Filter by price range
     if (minPrice || maxPrice) {
       whereConditions.price = {};
@@ -69,8 +65,8 @@ router.get('/', async (req, res) => {
     }
 
     // Filter by subcategory
-    if (subCategory) {
-      subCategoryWhere.id = subCategory;
+    if (subcategory) {
+      subCategoryWhere.id = subcategory;
     }
 
     // Calculate offset for pagination
@@ -161,11 +157,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-/**
- * @route   GET /api/products/:id
- * @desc    Get a single product by ID
- * @access  Public
- */
+
 router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id, {
@@ -223,11 +215,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-/**
- * @route   POST /api/products
- * @desc    Create a new product
- * @access  Private (Admin only)
- */
+
 router.post('/', auth, adminAuth, productValidation, handleMultipleDefaultImages, async (req, res) => {
   const transaction = await Product.sequelize.transaction();
 
@@ -365,11 +353,7 @@ router.post('/', auth, adminAuth, productValidation, handleMultipleDefaultImages
   }
 });
 
-/**
- * @route   PUT /api/products/:id
- * @desc    Update a product
- * @access  Private (Admin only)
- */
+
 router.put('/:id', auth, adminAuth, updateProductValidation, handleMultipleDefaultImages, async (req, res) => {
   const transaction = await Product.sequelize.transaction();
 

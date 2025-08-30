@@ -6,6 +6,7 @@ const handleValidationErrors = (req, res, next) => {
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
+      validationError: true,
       errors: errors.array(),
     });
   }
@@ -51,6 +52,97 @@ const registerValidation = [
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
     .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
   
+  handleValidationErrors,
+];
+
+const userUpdateValidation = [
+  body('firstName')
+    .optional()
+    .custom((value) => {
+      if (!value || value.trim() === '') return true; // Skip if empty
+      if (value.trim().length < 2 || value.trim().length > 50) {
+        throw new Error('First name must be between 2 and 50 characters');
+      }
+      return true;
+    }),
+  
+  body('lastName')
+    .optional()
+    .custom((value) => {
+      if (!value || value.trim() === '') return true;
+      if (value.trim().length < 2 || value.trim().length > 50) {
+        throw new Error('Last name must be between 2 and 50 characters');
+      }
+      return true;
+    }),
+  
+  body('email')
+    .optional()
+    .custom((value) => {
+      if (!value || value.trim() === '') return true;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        throw new Error('Please provide a valid email address');
+      }
+      return true;
+    }),
+
+  body('phone')
+    .optional()
+    .custom((value) => {
+      if (!value || value.trim() === '') return true; // ✅ Skip validation for empty strings
+      const phoneRegex = /^(?:\+94|94|0)?7[0125678]\d{7}$/;
+      if (!phoneRegex.test(value.trim())) {
+        throw new Error('Please provide a valid phone number');
+      }
+      return true;
+    }),
+
+  body('postalCode')
+    .optional()
+    .custom((value) => {
+      if (!value || value.trim() === '') return true; // ✅ Skip validation for empty strings
+      const postalRegex = /^\d{5}$/;
+      if (!postalRegex.test(value.trim())) {
+        throw new Error('Enter a valid postal code');
+      }
+      return true;
+    }),
+
+  body('address')
+    .optional()
+    .custom((value) => {
+      if (!value || value.trim() === '') return true;
+      if (value.trim().length < 5 || value.trim().length > 256) {
+        throw new Error('Address must be between 5 and 256 characters');
+      }
+      return true;
+    }),
+
+  // Avatar validation stays the same
+  body('avatar')
+    .optional()
+    .custom((value, { req }) => {
+      if (!req.file && !value) {
+        return true;
+      }
+      
+      const file = req.file;
+      if (file) {
+        const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedMimes.includes(file.mimetype)) {
+          throw new Error('Only .jpg, .jpeg, .png, .gif, .webp files are allowed');
+        }
+        
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+          throw new Error('File size cannot exceed 5MB');
+        }
+      }
+      
+      return true;
+    }),
+
   handleValidationErrors,
 ];
 
@@ -302,4 +394,5 @@ module.exports = {
   subCategoryValidation,
   updateProductValidation,
   handleMultipleDefaultImages,
+  userUpdateValidation,
 };
