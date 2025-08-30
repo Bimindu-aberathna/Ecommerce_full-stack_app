@@ -115,6 +115,33 @@ const config: Config = {
       boxShadow: {
         card: "var(--card-shadow)",
       },
+      animation : {
+        typewriter: "typewriter 12s infinite"
+      },
+      keyframes: {
+        typewriter: {
+          "0%": { content: "''" },
+          "5%": { content: "'H'" },
+          "10%": { content: "'He'" },
+          "15%": { content: "'Hel'" },
+          "20%": { content: "'Hell'" },
+          "25%": { content: "'Hello'" },
+          "30%": { content: "'Hello!'" },
+          "40%": { content: "'Hello!'" },
+          "45%": { content: "'Hello'" },
+          "50%": { content: "'Hell'" },
+          "55%": { content: "'Hel'" },
+          "60%": { content: "'He'" },
+          "65%": { content: "'H'" },
+          "70%": { content: "''" },
+          "75%": { content: "'H'" },
+          "80%": { content: "'Ho'" },
+          "85%": { content: "'Hol'" },
+          "90%": { content: "'Hola'" },
+          "95%": { content: "'Hola!'" },
+          "100%": { content: "'Hola!'" }
+        }
+      }
     },
   },
   plugins: [],

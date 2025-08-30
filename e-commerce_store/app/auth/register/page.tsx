@@ -32,11 +32,10 @@ export default function RegisterPage() {
     }
     if (userData.password !== userData.confirmPassword) {
       toast.error("Passwords do not match");
-
       return;
     }
 
-    // Call registration service here
+    // Call registration service through useAuth hook
     const response = await register(userData);
     if (response && response.success) {
       toast.success(response.message);
