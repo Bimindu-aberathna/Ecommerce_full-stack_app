@@ -2,14 +2,14 @@ const { Sequelize } = require('sequelize');
 
 // Create Sequelize instance
 const sequelize = new Sequelize(
-  process.env.DB_NAME || 'champion_db',
+  process.env.DB_NAME || 'dev_champion_db',
   process.env.DB_USER || 'root',
   process.env.DB_PASSWORD || '',
   {
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 3306,
     dialect: 'mysql',
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    logging: false,//process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
       max: 10,
       min: 0,
@@ -30,11 +30,10 @@ const connectDB = async () => {
     await sequelize.authenticate();
     console.log('MySQL Database connected successfully');
     
-    // Sync database in development
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('Database synchronized');
-    }
+    
+    require('../models');
+    
+    console.log('Database models loaded successfully');
   } catch (error) {
     console.error('Database connection error:', error.message);
     process.exit(1);
