@@ -6,14 +6,23 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const { connectDB } = require('./config/database');
+// Load models and associations before DB sync
+require('./models');
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/product');
 const categoryRoutes = require('./routes/category');
 const subcategoryRoutes = require('./routes/subcategory');
 const userRoutes = require('./routes/users');
 const cartRoutes = require('./routes/cart');
+const paymentRoutes = require('./routes/payments');
+const chatRoutes = require('./routes/chat');
+const analysisRoutes = require('./routes/analysis');
+
+//route testing
+const { test_route } = require('./Services/testing_purposes');
 
 const errorHandler = require('./middleware/errorHandler');
+const { adminAuth } = require('./middleware/auth');
 
 const app = express();
 
@@ -45,13 +54,16 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // API routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth',test_route, authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/subcategories', subcategoryRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/analysis',adminAuth, analysisRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

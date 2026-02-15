@@ -28,6 +28,7 @@ const initialState: AuthState = {
   error: null,
 };
 
+
 interface cartState {
   itemCount: number;
 }
@@ -42,6 +43,38 @@ const initialLoadingState: LoadingState = {
   isLoading: false,
   loadingMessage: null,
   loadingType: null,
+};
+
+// Message interface
+interface Message {
+  id: string;
+  customerId: string;
+  sellerId: string;
+  senderId: string;
+  senderRole: 'buyer' | 'seller';
+  receiverId: string;
+  content: string;
+  messageType: 'product_inquiry' | 'order_inquiry' | 'general';
+  productId?: string;
+  orderId?: string;
+  timestamp: number;
+  isRead: boolean;
+}
+
+interface MessagingState {
+  messagesByCustomer: Record<string, Message[]>;
+  activeCustomerId: string | null;
+  loading: boolean;
+  error: string | null;
+  lastSyncedAt: number | null;
+}
+
+const initialMessagingState: MessagingState = {
+  messagesByCustomer: {},
+  activeCustomerId: null,
+  loading: false,
+  error: null,
+  lastSyncedAt: null,
 };
 
 // Auth slice
@@ -124,6 +157,56 @@ const loadingSlice = createSlice({
   },
 });
 
+// Messaging slice
+const messagingSlice = createSlice({
+  name: "messaging",
+  initialState: initialMessagingState,
+  reducers: {
+    setMessagesForCustomer: (
+      state,
+      action: PayloadAction<{ customerId: string; messages: Message[] }>
+    ) => {
+      state.messagesByCustomer[action.payload.customerId] = action.payload.messages;
+      state.loading = false;
+      state.error = null;
+    },
+    addMessage: (state, action: PayloadAction<Message>) => {
+      const { customerId } = action.payload;
+      if (!state.messagesByCustomer[customerId]) {
+        state.messagesByCustomer[customerId] = [];
+      }
+      state.messagesByCustomer[customerId].push(action.payload);
+    },
+    setActiveCustomer: (state, action: PayloadAction<string | null>) => {
+      state.activeCustomerId = action.payload;
+    },
+    markAsReadForCustomer: (
+      state,
+      action: PayloadAction<{ customerId: string; messageIds: string[] }>
+    ) => {
+      const messages = state.messagesByCustomer[action.payload.customerId] || [];
+      messages.forEach((msg) => {
+        if (action.payload.messageIds.includes(msg.id)) {
+          msg.isRead = true;
+        }
+      });
+    },
+    setMessagingLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setMessagingError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
+      state.loading = false;
+    },
+    setLastSyncedAt: (state, action: PayloadAction<number | null>) => {
+      state.lastSyncedAt = action.payload;
+    },
+    clearActiveCustomer: (state) => {
+      state.activeCustomerId = null;
+    },
+  },
+});
+
 
 export const { 
   loginStart, 
@@ -144,17 +227,29 @@ export const {
   updateLoadingMessage
 } = loadingSlice.actions;
 
+export const {
+  setMessagesForCustomer,
+  addMessage,
+  setActiveCustomer,
+  markAsReadForCustomer,
+  setMessagingLoading,
+  setMessagingError,
+  setLastSyncedAt,
+  clearActiveCustomer
+} = messagingSlice.actions;
+
 // Persist config
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ['auth', 'cart'],
+  whitelist: ['auth', 'cart', 'messaging'],
 };
 
 const rootReducer = combineReducers({
   auth: authSlice.reducer,
   cart: cartSlice.reducer,
-  loading: loadingSlice.reducer
+  loading: loadingSlice.reducer,
+  messaging: messagingSlice.reducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

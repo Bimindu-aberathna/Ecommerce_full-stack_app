@@ -41,7 +41,14 @@ export default function LoginPage() {
           }
         }
 
-        router.push("/");
+        const userRole = response.data?.data?.user?.role;
+        if (userRole === "admin") {
+          router.push("/seller/dashboard");
+        } else if (userRole === "seller") {
+          router.push("/seller/dashboard");
+        } else {
+          router.push("/");
+        } 
       } else {
         toast.error(response?.message || "Login failed");
       }

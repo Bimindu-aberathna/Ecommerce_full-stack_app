@@ -27,6 +27,10 @@ export const useAuth = () => {
     dispatch(loginStart());
     try {
       const response = await AuthService.login(credentials);
+      // rename role to buyer/seller from user/admin
+      if (response.data?.data?.user?.role) {
+        response.data.data.user.role = response.data.data.user.role === 'admin' ? 'seller' : 'buyer';
+      }
       if (response.success && response.data) {
         dispatch(loginSuccess({
           user: response.data?.data?.user,

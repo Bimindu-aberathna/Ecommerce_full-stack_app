@@ -2,12 +2,15 @@
 import { useAuth } from "@/src/hooks/useAuth";
 import { useCart } from "@/src/hooks/useCart";
 import {
+  checkCartAvailability,
   deleteCart,
   fetchCart,
   removeCartItem,
   updateCart,
 } from "@/src/services/cart.service";
+import profileService from "@/src/services/profile.service";
 import { ClipboardX, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
@@ -35,6 +38,11 @@ interface cart {
   id: string;
   status: string;
   items: cartItem[];
+  originalTotal: number;
+  calculatedTotal: number;
+  totalSavings: number;
+  discountPercentageGiven: number;
+  shippingCost: number;
 }
 
 function CartPage() {
@@ -42,6 +50,8 @@ function CartPage() {
   const { isAuthenticated, token } = useAuth();
   const [cartExists, setCartExists] = useState<boolean>(false);
   const { updateCartCount } = useCart();
+  const [fetchUserData, setFetchUserData] = useState<boolean>(false);
+  const router = useRouter();
 
   const getCart = async () => {
     const response = await fetchCart({ isAuthenticated, token: token ?? "" });
@@ -80,6 +90,51 @@ function CartPage() {
       toast.error("Failed to update cart");
       console.error("Cart update error:", error);
     }
+  };
+
+  const handleCheckout = async () => {
+    if (!cart?.id) {
+      toast.error("No cart found, Try refreshing the page");
+      return;
+    }
+    if (cart?.items.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+    setFetchUserData(true);
+    const result = await profileService.fetchUserProfile(token ?? "");
+    if (!result.success) {
+      toast.error("Failed to fetch user data");
+      return;
+    }
+
+    const availability = await checkCartAvailability({
+      isAuthenticated,
+      token: token ?? "",
+      cartId: cart?.id
+    });
+    if(!availability.success) {
+      if(availability.lowStockItems.length > 0) {
+        toast.error( `Some items are out of stock or have insufficient stock: ${availability.lowStockItems.map(item => item.name).join(", ")}` );
+        setFetchUserData(false);
+      }else{
+        toast.error( availability.message || "Failed to check cart availability");
+      }
+      return;
+    }
+
+    const dataObject = {
+      cartId: cart?.id,
+      amount: cart?.calculatedTotal || 0,
+      shippingCost: cart?.shippingCost || 0,
+      address: result.data.address || "",
+      postalCode: result.data.postalCode || "",
+      email: result.data.email || "",
+      telephone: result.data.phone || "",
+    };
+    const queryString = new URLSearchParams(dataObject as any).toString();
+    router.push(`/checkout?${queryString}`);
+
   };
 
   const handleDeleteCart = async() => {
@@ -212,21 +267,39 @@ function CartPage() {
               </h3>
               <div className="flex justify-between mb-2 text-gray-600 text-sm sm:text-base">
                 <span>Subtotal</span>
-                <span>$49.99</span>
+                <span>{cart?.originalTotal ? cart.originalTotal : 0}</span> lkr
               </div>
               <div className="flex justify-between mb-2 text-gray-600 text-sm sm:text-base">
+                <span>Discount</span>
+                <span>{cart?.totalSavings ? cart.totalSavings : 0}</span> lkr
+              </div>
+              <div className="flex justify-between mb-2 text-gray-600 text-md sm:text-base">
+                <span>Final Price</span>
+                <span>{cart?.calculatedTotal ? cart.calculatedTotal : 0}</span> lkr
+              </div>
+              {cart?.discountPercentageGiven && (
+                <div>
+                  <span className="text-green-600 font-semibold">
+                    {cart.discountPercentageGiven}% Off deal
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between mb-2 text-gray-600 text-sm sm:text-base">
                 <span>Shipping</span>
-                <span>$4.99</span>
+                <span>{cart?.shippingCost ? cart.shippingCost : 0}</span> lkr
               </div>
               <div className="flex justify-between font-bold text-gray-800 text-base sm:text-lg border-t pt-2 sm:pt-4 mt-2 sm:mt-4">
                 <span>Total</span>
-                <span>$54.98</span>
+                <span>{((cart?.calculatedTotal && cart?.shippingCost) ? cart.calculatedTotal + cart.shippingCost : 0).toFixed(2)}</span> lkr
               </div>
               <div className="flex justify-center text-gray-400 text-xs sm:text-sm border-t mt-2">
                 <span>includes government taxes</span>
               </div>
-              <button className="mt-4 sm:mt-6 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-2 sm:py-3 rounded transition">
-                Checkout
+              <button className="mt-4 sm:mt-6 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-2 sm:py-3 rounded transition" onClick={(e) => {
+                e.preventDefault();
+                handleCheckout();
+              }}>
+                {fetchUserData ? "Loading..." : "Checkout"}
               </button>
             </div>
           </div>
