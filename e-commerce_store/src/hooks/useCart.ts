@@ -12,7 +12,7 @@ export const useCart = () => {
   const getCartCount = async (token: string) => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/cart/itemCount`,
+        `/api/cart/itemCount`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

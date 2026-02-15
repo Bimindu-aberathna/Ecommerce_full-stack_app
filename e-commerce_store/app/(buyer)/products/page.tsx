@@ -3,6 +3,7 @@ import SidebarFilters from "@/src/components/buyer/product/SidebarFilters";
 import ProductsGrid from "@/src/components/buyer/product/ProductGrid";
 import SortDropdown from "@/src/components/buyer/product/SortDropdown";
 import axios from "axios";
+import ChatButton from "@/src/components/buyer/chat/ChatButton";
 
 export const metadata: Metadata = {
   title: "Products - E-Store",
@@ -64,7 +65,11 @@ export default async function ProductsPage({
             currentPage={parseInt(params.page || "1")}
           />
         </main>
+        
       </div>
+      
+      {/* Floating Chat Button */}
+      <ChatButton />
     </div>
   );
 }
@@ -85,31 +90,50 @@ async function fetchProducts(params: {
     searchParams.set("page", params.page.toString());
     searchParams.set("limit", "12");
 
-    console.log("Fetching products with params:", searchParams.toString()); 
+    console.log("Fetching products with params:", searchParams.toString());
 
     const response = await fetch(
-  `${process.env.NEXT_PUBLIC_API_URL}/products?${searchParams}`,
-  {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    next: { revalidate: 60 } 
-  }
-);
+      `${process.env.NEXT_PUBLIC_API_URL}/products?${searchParams}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        next: { revalidate: 60 },
+      },
+    );
 
     if (response.status < 200 || response.status >= 300) {
       throw new Error("Failed to fetch products");
     }
 
     const data = await response.json();
-    if (data) {
-      return data;
-    } else {
+    if (data?.data?.products) {
+      const pagination = data.data.pagination || {};
       return {
-        data: { products: [] },
+        data: { products: data.data.products || [] },
+        total: pagination.totalItems || 0,
+        totalPages: pagination.totalPages || 1,
+        from:
+          pagination.totalItems && pagination.itemsPerPage
+            ? (pagination.currentPage - 1) * pagination.itemsPerPage + 1
+            : 0,
+        to:
+          pagination.totalItems && pagination.itemsPerPage
+            ? Math.min(
+                pagination.currentPage * pagination.itemsPerPage,
+                pagination.totalItems,
+              )
+            : 0,
       };
     }
+    return {
+      data: { products: [] },
+      total: 0,
+      totalPages: 1,
+      from: 0,
+      to: 0,
+    };
   } catch (error) {
     console.error("Error fetching products:", error);
     return {

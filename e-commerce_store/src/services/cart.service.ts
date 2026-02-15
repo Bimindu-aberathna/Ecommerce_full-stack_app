@@ -14,7 +14,7 @@ export class CartService {
       return null;
     }
     const cart = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/cart`,
+      `/api/cart`,
       {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -39,7 +39,7 @@ export class CartService {
     }
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/cart/add`,
+        `/api/cart/add`,
         {
           productVarietyId: varietyId,
           quantity
@@ -79,7 +79,7 @@ export class CartService {
     }
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/cart/update/${itemId}`,
+        `/api/cart/update/${itemId}`,
         {
           quantity
         },
@@ -116,7 +116,7 @@ export class CartService {
     }
     try {
       const response = await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/cart/delete/${itemId}`,
+        `/api/cart/delete/${itemId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -154,7 +154,7 @@ export class CartService {
     }
     try {
       const response = await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/cart/${cartId}`,
+        `/api/cart/${cartId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -174,6 +174,44 @@ export class CartService {
     }
   }
 
+  static async checkAvailability({
+    isAuthenticated,
+    token,
+    cartId
+  }: {
+    isAuthenticated: boolean;
+    token: string;
+    cartId: string;
+  }) {
+    if (!isAuthenticated) {
+      return { success: false, message: 'User not authenticated' };
+    }
+    if (!token) {
+      return { success: false, message: 'No token provided' };
+    }
+    try {
+      const response = await axios.get(
+        `/api/cart/availability/${cartId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        return {
+          success: false,
+          message: error.response.data.message || 'Check availability failed',
+          lowStockItems: error.response.data.lowStockItems || []
+        };
+      }
+      return { success: false, message: 'Network error' };
+    }
+  }
+
 }
 
 export const addToCart = CartService.addToCart;
@@ -181,3 +219,4 @@ export const fetchCart = CartService.fetchCart;
 export const updateCart = CartService.updateCart;
 export const removeCartItem = CartService.removeItem;
 export const deleteCart = CartService.deleteCart;
+export const checkCartAvailability = CartService.checkAvailability;

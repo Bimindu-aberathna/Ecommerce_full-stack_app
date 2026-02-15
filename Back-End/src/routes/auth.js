@@ -1,8 +1,11 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { User } = require('../models');
 const { auth } = require('../middleware/auth');
 const { registerValidation, loginValidation } = require('../middleware/validation');
+const { sendPasswordResetEmail, sendWelcomeEmail } = require('../Services/Email/emailService');
+const bcrypt = require('bcryptjs/dist/bcrypt');
 
 const router = express.Router();
 
@@ -13,9 +16,7 @@ const generateToken = (userId) => {
   });
 };
 
-// @route   POST /api/auth/register
-// @desc    Register a new user
-// @access  Public
+
 router.post('/register', registerValidation, async (req, res) => {
   try {
     const { firstName, lastName, email, password , phone, address, postalCode, avatar } = req.body;
@@ -45,9 +46,14 @@ router.post('/register', registerValidation, async (req, res) => {
     // Generate token
     const token = generateToken(user.id);
 
+    // Send welcome email (don't wait for it to complete)
+    sendWelcomeEmail(user.email, user.firstName).catch(emailError => {
+      console.error('Failed to send welcome email:', emailError);
+    });
+
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'User registered successfully! Check your email for a welcome message.',
       data: {
         user: user.toAuthJSON(),
         token,
@@ -63,12 +69,11 @@ router.post('/register', registerValidation, async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/login
-// @desc    Login user
-// @access  Public
+
 router.post('/login', loginValidation, async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt for email:', email);
 
     // Find user with password field
     const user = await User.scope('withPassword').findOne({ where: { email } });
@@ -88,7 +93,7 @@ router.post('/login', loginValidation, async (req, res) => {
     }
 
     // Check password
-    const isMatch = await user.comparePassword(password);
+    const isMatch = bcrypt.compareSync(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -188,6 +193,184 @@ router.post('/logout', auth, (req, res) => {
     success: true,
     message: 'Logged out successfully',
   });
+});
+
+
+router.post('/request-password-reset', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required',
+      });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ where: { email: email } });
+ 
+    if (!user) {
+      return res.json({
+        success: true,
+        message: 'If an account with that email exists, we\'ve sent a password reset link.',
+      });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); 
+
+    // Store reset token in user record
+    await User.update(
+      { 
+        resetPasswordToken: resetToken,
+        resetPasswordExpires: resetTokenExpiry 
+      },
+      { where: { id: user.id } }
+    );
+
+    // Send password reset email
+    const emailResult = await sendPasswordResetEmail(
+      user.email, 
+      user.firstName, 
+      resetToken
+    );
+
+    if (!emailResult.success) {
+      console.error('Failed to send password reset email:', emailResult.error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send password reset email. Please try again.',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'If an account with that email exists, we\'ve sent a password reset link.',
+    });
+
+  } catch (error) {
+    console.error('Request password reset error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.',
+      error: error.message,
+    });
+  }
+});
+
+// @route   POST /api/auth/reset-password
+// @desc    Reset password using token (from email link)
+// @access  Public
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token and new password are required',
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long',
+      });
+    }
+
+    // Find user by reset token
+    const user = await User.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: {
+          [require('sequelize').Op.gt]: new Date() // Token hasn't expired
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired password reset token',
+      });
+    }
+
+    // Update user password and clear reset token
+    await User.update(
+      { 
+        password: bcrypt.hashSync(newPassword, 10),
+        resetPasswordToken: null,
+        resetPasswordExpires: null 
+      },
+      { where: { id: user.id } }
+    );
+
+    res.json({
+      success: true,
+      message: 'Password reset successfully. You can now login with your new password.',
+    });
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.',
+      error: error.message,
+    });
+  }
+});
+
+// @route   POST /api/auth/verify-reset-token
+// @desc    Verify if reset token is valid (for frontend validation)
+// @access  Public
+router.post('/verify-reset-token', async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token is required',
+      });
+    }
+
+    // Find user by reset token
+    const user = await User.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: {
+          [require('sequelize').Op.gt]: new Date()  
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired password reset token',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Token is valid',
+      data: {
+        email: user.email,
+        firstName: user.firstName
+      }
+    });
+
+  } catch (error) {
+    console.error('Verify reset token error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.',
+      error: error.message,
+    });
+  }
 });
 
 module.exports = router;

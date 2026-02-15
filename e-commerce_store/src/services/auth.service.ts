@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+// Use same-origin API path. `next.config.ts` rewrites `/api/*` to your backend.
+const apiUrl = "/api";
 
 interface UserData {
   firstName: string;
@@ -75,6 +76,30 @@ export class AuthService {
         return { 
           success: false, 
           message: error.response.data.message || 'Login failed' 
+        };
+      }
+      return { success: false, message: 'Network error' };
+    }
+  }
+  
+  static async resetPassword(token: string, newPassword: string) {
+    try {
+      const response = await axios.post(`${apiUrl}/auth/reset-password`, {
+        token,
+        newPassword,
+      });
+
+      if (response.status === 200) {
+        return { success: true, message: 'Password reset successful' };
+      } else {
+        return { success: false, message: 'Password reset failed' };
+      }
+    } catch (error) {
+      console.error('Reset password error:', error);
+      if (axios.isAxiosError(error) && error.response) {
+        return {
+          success: false,
+          message: error.response.data.message || 'Password reset failed',
         };
       }
       return { success: false, message: 'Network error' };

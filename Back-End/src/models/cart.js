@@ -18,7 +18,7 @@ const Cart = sequelize.define('Cart', {
         }
     },
     status: {
-        type: DataTypes.ENUM('pending', 'completed', 'cancelled'),
+        type: DataTypes.ENUM('pending', 'completed', 'cancelled', 'processing'),
         allowNull: false,
         defaultValue: 'pending'
     },

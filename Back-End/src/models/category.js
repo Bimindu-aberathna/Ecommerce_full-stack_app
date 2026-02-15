@@ -43,30 +43,7 @@ const Category = sequelize.define('Category', {
   }
 }, {
   tableName: 'categories',
-  timestamps: true,
-  indexes: [
-    {
-      name: 'idx_category_name',
-      unique: true,
-      fields: ['name']
-    },
-    {
-      name: 'idx_category_active',
-      fields: ['isActive']
-    },
-    {
-      name: 'idx_category_sort_order',
-      fields: ['sortOrder']
-    },
-    {
-      name: 'idx_category_active_sort',
-      fields: ['isActive', 'sortOrder']
-    },
-    { 
-      name: 'idx_category_created_at',
-      fields: ['createdAt']
-    }
-  ]
+  timestamps: true
 });
 
 module.exports = Category;

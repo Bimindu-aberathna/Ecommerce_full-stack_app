@@ -72,8 +72,8 @@ const config: Config = {
         },
         button: {
           primary: {
-            bg: "var(--button-primary-bg)",
-            hover: "var(--button-primary-hover)",
+            // bg: "var(--button-primary-bg)",
+            // hover: "var(--button-primary-hover)",
             text: "var(--button-primary-text)",
           },
         },

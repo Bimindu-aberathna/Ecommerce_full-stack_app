@@ -43,7 +43,7 @@ export default function CategoriesList() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/categories`
+        `/api/categories`
       );
 
       // Ensure we have the data array from your API response

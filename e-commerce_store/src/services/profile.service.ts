@@ -4,7 +4,7 @@ import { updateUserProfileObj } from "../types";
 const fetchUserProfile = async (token: string) => {
   try {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/profile`,
+      `/api/users/profile`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -45,7 +45,7 @@ const fetchUserProfile = async (token: string) => {
 const updateUserProfile = async (token: string, profileData: updateUserProfileObj) => {
   try {
     const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/profile`,
+      `/api/users/profile`,
       profileData,
       {
         headers: {
@@ -85,7 +85,7 @@ const updateUserProfile = async (token: string, profileData: updateUserProfileOb
 const deleteUser = async (token: string) => {
   try {
     const response = await axios.delete(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/profile`,
+      `/api/users/profile`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

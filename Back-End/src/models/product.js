@@ -141,45 +141,13 @@ const Product = sequelize.define('Product', {
   timestamps: true,
   indexes: [
     {
-      name: 'idx_product_name',
-      fields: ['name']
-    },
-    {
-      name: 'idx_product_subcategory_id',
-      fields: ['subCategoryId']
-    },
-    {
-      name: 'idx_product_price',
-      fields: ['price']
-    },
-    {
       name: 'idx_product_sku',
       unique: true,
       fields: ['sku']
     },
     {
-      name: 'idx_product_brand',
-      fields: ['brand']
-    }, 
-    {
-      name: 'idx_product_active',
-      fields: ['isActive']
-    },
-    {
-      name: 'idx_product_featured',
-      fields: ['isFeatured']
-    },
-    {
-      name: 'idx_product_created_by',
-      fields: ['createdById']
-    },
-    {
-      name: 'idx_product_created_at',
-      fields: ['createdAt']
-    },
-    {
-      name: 'idx_product_active_subcategory',
-      fields: ['isActive', 'subCategoryId']
+      name: 'idx_product_subcategory_id',
+      fields: ['subCategoryId']
     }
   ]
 });
@@ -241,15 +209,6 @@ const ProductVariety = sequelize.define('ProductVariety', {
     {
       name: 'idx_variety_product_id',
       fields: ['productId']
-    },
-    {
-      name: 'idx_variety_name_product',
-      unique: true,
-      fields: ['name', 'productId']
-    },
-    {
-      name: 'idx_variety_stock',
-      fields: ['stock']
     }
   ]
 });

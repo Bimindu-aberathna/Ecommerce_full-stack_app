@@ -4,6 +4,7 @@ import axios from "axios";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import VarietySelector from "@/src/components/buyer/product/VarietySelector";
+import ChatButton from "@/src/components/buyer/chat/ChatButton";
 
 interface Props {
   params: {
@@ -385,6 +386,8 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
         )} */}
+        {/* chat button */}
+        <ChatButton productId={productId} />
       </div>
     );
   } catch (error) {

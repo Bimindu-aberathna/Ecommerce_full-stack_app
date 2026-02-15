@@ -1,4 +1,40 @@
 const { body, validationResult } = require('express-validator');
+const parseFormDataJSON = (req, res, next) => {
+  // Parse varieties if it's a JSON string
+  if (req.body.varieties && typeof req.body.varieties === 'string') {
+    try {
+      req.body.varieties = JSON.parse(req.body.varieties);
+    } catch (e) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid varieties JSON format'
+      });
+    }
+  }
+
+  // Parse tags if it's a JSON string
+  if (req.body.tags && typeof req.body.tags === 'string') {
+    try {
+      req.body.tags = JSON.parse(req.body.tags);
+    } catch (e) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid tags JSON format'
+      });
+    }
+  }
+
+  // Parse images if it's a JSON string
+  if (req.body.images && typeof req.body.images === 'string') {
+    try {
+      req.body.images = JSON.parse(req.body.images);
+    } catch (e) {
+      // Keep as is if not valid JSON
+    }
+  }
+
+  next();
+};
 
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -160,6 +196,8 @@ const loginValidation = [
 ];
 
 const productValidation = [
+    parseFormDataJSON, // Add this first!
+    
     body('name')
         .trim()
         .isLength({ min: 2, max: 200 })
@@ -173,11 +211,10 @@ const productValidation = [
     body('price')
         .isFloat({ min: 0 })
         .withMessage('Price must be a positive number'),
-  
-  body('subCategory')
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage('Sub-category must be a valid ID'),
+
+    body('subCategoryId')
+        .isInt({ min: 1 })
+        .withMessage('Sub-category ID must be a valid ID'),
 
     body('sku')
         .trim()
@@ -185,15 +222,25 @@ const productValidation = [
         .withMessage('SKU must be between 2 and 50 characters'),
 
     body('varieties')
-        .isArray({ min: 1 })
-        .withMessage('At least one variety is required'),
+        .custom((value) => {
+          // Check if files exist OR if varieties array is provided
+          if (!value || (Array.isArray(value) && value.length === 0)) {
+            throw new Error('At least one variety is required');
+          }
+          if (!Array.isArray(value)) {
+            throw new Error('Varieties must be an array');
+          }
+          return true;
+        }),
 
     body('varieties.*.name')
+        .optional()
         .trim()
         .isLength({ min: 1 })
         .withMessage('Variety name is required'),
 
     body('varieties.*.stock')
+        .optional()
         .isInt({ min: 0 })
         .withMessage('Variety stock must be a non-negative integer'),
 
@@ -214,6 +261,7 @@ const productValidation = [
         .withMessage('Brand name cannot exceed 100 characters'),
 
     body('weight')
+        .optional()
         .isFloat({ min: 0 })
         .withMessage('Weight must be a positive number'),
 
@@ -223,47 +271,26 @@ const productValidation = [
         .isLength({ max: 100 })
         .withMessage('Warranty information cannot exceed 100 characters'),
 
-    body('images')
-        .isArray({ min: 1 })
-        .withMessage('Images must be a non-empty array'),
-
-    body('images.*.url')
-        .isURL()
-        .withMessage('Image URL must be valid'),
-
-    body('images.*.type')
-        .equals('image')
-        .withMessage('Only images are accepted'),
-
     body('tags')
         .optional()
-        .isArray()
-        .withMessage('Tags must be an array'),
+        .custom((value) => {
+          if (value && !Array.isArray(value)) {
+            throw new Error('Tags must be an array');
+          }
+          return true;
+        }),
 
-    body('dimensions.length')
+    body('isFeatured')
         .optional()
-        .isFloat({ min: 0 })
-        .withMessage('Length must be a positive number'),
-
-    body('dimensions.width')
-        .optional()
-        .isFloat({ min: 0 })
-        .withMessage('Width must be a positive number'),
-
-    body('dimensions.height')
-        .optional()
-        .isFloat({ min: 0 })
-        .withMessage('Height must be a positive number'),
-
-    body('dimensions.weight')
-        .optional()
-        .isFloat({ min: 0 })
-        .withMessage('Dimensions weight must be a positive number'),
+        .isBoolean()
+        .withMessage('isFeatured must be a boolean'),
 
     handleValidationErrors,
 ];
 
 const updateProductValidation = [
+  parseFormDataJSON, // Add this first!
+  
   body('name')
     .optional()
     .trim()
@@ -328,6 +355,15 @@ const updateProductValidation = [
     .trim()
     .isLength({ max: 100 })
     .withMessage('Warranty information cannot exceed 100 characters'),
+
+  body('tags')
+    .optional()
+    .custom((value) => {
+      if (value && !Array.isArray(value)) {
+        throw new Error('Tags must be an array');
+      }
+      return true;
+    }),
   
   handleValidationErrors,
 ];
@@ -395,4 +431,5 @@ module.exports = {
   updateProductValidation,
   handleMultipleDefaultImages,
   userUpdateValidation,
+  parseFormDataJSON,
 };

@@ -228,6 +228,11 @@ export type fetchCartObj = {
   isAuthenticated: boolean;
   token: string;
 }
+export type fetchOrdersObj = {
+  isAuthenticated: boolean;
+  token: string;
+  unprocessed?: boolean | true;
+}
 
 export type addToCartObj = {
   isAuthenticated: boolean;
@@ -257,4 +262,81 @@ export type updateUserProfileObj = {
         address: string | null,
         postalCode: string | null,
         file: File | null
+}
+
+export type KPICardType = {
+  title: string;
+  values: any; 
+  type: string;
+  icon: React.ReactNode;
+  period: string;
+}
+
+export interface Orders {
+  orderId: number;
+  orderNumber: string;
+  totalAmount: string;
+  status: string;
+  viewed: boolean;
+  createdAt: string;
+  updatedAt: string;
+  shippingAddress: string;
+  postalCode: string;
+  telephone: string;
+  trackingNumber?: string | null;
+  itemCount: number;
+  customer: {
+    id: number;
+    email: string;
+    name: string;
+  };
+  items: OrderItem[];
+}
+
+export interface OrderItemResponse {
+  orderItemId: number;
+  quantity: number;
+  price: string;
+  totalPrice: string;
+  product: {
+    id: number;
+    name: string;
+    brand: string;
+    images: string;
+    weight: string;
+    variety: string;
+  };
+}
+
+export type NewProduct = {
+  name: string;
+  description: string;
+  price: string | number;
+  originalPrice: string | number;
+  brand: string;
+  sku: string;
+  tags: string[];
+  weight: number;
+  warranty: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  varieties: NewProductVariety[];
+}
+
+export type NewProductVariety = {
+  name: string;
+  stock: number;
+  preorderLevel: number;
+};
+
+const emptyVariety = (): NewProductVariety => ({
+  name: "",
+  stock: 0,
+  preorderLevel: 0,
+});
+
+export type fetchUserMessagesObj = {
+  isAuthenticated: boolean;
+  token: string | null;
+  customerId?: string | number | null;
 }

@@ -53,25 +53,8 @@ const SubCategory = sequelize.define('SubCategory', {
   timestamps: true,
   indexes: [
     {
-      name: 'idx_subcategory_name_category',
-      unique: true,
-      fields: ['name', 'categoryId']
-    },
-    {
       name: 'idx_subcategory_category_id',
       fields: ['categoryId']
-    },
-    {
-      name: 'idx_subcategory_active',
-      fields: ['isActive']
-    },
-    {
-      name: 'idx_subcategory_sort_order',
-      fields: ['sortOrder']
-    },
-    {
-      name: 'idx_subcategory_category_active_sort',
-      fields: ['categoryId', 'isActive', 'sortOrder']
     }
   ]
 });
