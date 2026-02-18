@@ -179,6 +179,14 @@ export interface ProductFilters {
   tags?: string[];
 }
 
+export type subCategory = {
+  id: string;
+  name: string;
+  image: string;
+  isActive: boolean;
+
+};
+
 export interface SortOptions {
   sortBy: string;
   sortOrder: 'ASC' | 'DESC';
@@ -328,6 +336,21 @@ export type NewProductVariety = {
   stock: number;
   preorderLevel: number;
 };
+
+export type featuredProduct = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  images: string[];
+  categoryId: string;
+  category: Category;
+  brand: string;
+  sku: string;
+  stock: number;
+  isActive: boolean;
+}
 
 const emptyVariety = (): NewProductVariety => ({
   name: "",

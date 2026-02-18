@@ -2,7 +2,7 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { useState } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
@@ -197,7 +197,6 @@ export default function CategoriesList() {
         )}
       </MenuItems>
 
-      <ToastContainer />
     </Menu>
   );
 }
