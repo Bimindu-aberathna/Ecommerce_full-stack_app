@@ -3,11 +3,11 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { validateUser } from "@/src/services/validation/validation.services";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function RegisterPage() {
-  const { register, loading } = useAuth();
+  const { register, loading, isAuthenticated, user } = useAuth();
   const [userData, setUserData] = useState({
     firstName: "",
     lastName: "",
@@ -21,6 +21,16 @@ export default function RegisterPage() {
 
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const router = useRouter();
+
+  const getDefaultRoute = (role?: string | null) => {
+    if (role === "seller") return "/seller/dashboard";
+    return "/";
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+    router.replace(getDefaultRoute(user.role));
+  }, [isAuthenticated, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

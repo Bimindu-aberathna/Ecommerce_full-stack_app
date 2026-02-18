@@ -32,30 +32,32 @@ export default async function ProductsPage({
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">
+    <div className="container mx-auto px-2 sm:px-4 py-6 sm:py-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4">
           {params.category
             ? "Category Products"
             : params.subcategory
             ? "Subcategory Products"
             : "All Products"}
         </h1>
-        <p className="text-gray-600">Discover amazing products at great prices</p>
+        <p className="text-sm sm:text-base" style={{ color: 'var(--secondary)' }}>
+          Discover amazing products at great prices
+        </p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        <SidebarFilters />
+      <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
+        <div className="w-full lg:w-1/4">
+          <SidebarFilters />
+        </div>
 
-        <main className="lg:w-3/4">
-          <div className="flex justify-between items-center mb-6">
-            <p className="text-gray-600">
+        <main className="w-full lg:w-3/4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <p className="text-xs sm:text-sm" style={{ color: 'var(--secondary)' }}>
               Showing {products.from || 1}-{products.to || 0} of {products.total || 0} products
               {params.category && ` in category ${params.category}`}
               {params.subcategory && ` in subcategory ${params.subcategory}`}
             </p>
-
             <SortDropdown currentSort={params.sort || "featured"} />
           </div>
 
@@ -65,10 +67,8 @@ export default async function ProductsPage({
             currentPage={parseInt(params.page || "1")}
           />
         </main>
-        
       </div>
       
-      {/* Floating Chat Button */}
       <ChatButton />
     </div>
   );
@@ -89,8 +89,6 @@ async function fetchProducts(params: {
     if (params.sort) searchParams.set("sort", params.sort);
     searchParams.set("page", params.page.toString());
     searchParams.set("limit", "12");
-
-    console.log("Fetching products with params:", searchParams.toString());
 
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/products?${searchParams}`,
@@ -135,7 +133,6 @@ async function fetchProducts(params: {
       to: 0,
     };
   } catch (error) {
-    console.error("Error fetching products:", error);
     return {
       data: { products: [] },
       total: 0,

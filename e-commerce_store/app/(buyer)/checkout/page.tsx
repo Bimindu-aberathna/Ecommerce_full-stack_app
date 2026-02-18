@@ -237,124 +237,105 @@ const PaymentForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-6 sm:py-8 lg:py-10 px-2 sm:px-4">
+      <div className="max-w-5xl mx-auto">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <button
             onClick={() => router.push("/cart")}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors text-sm sm:text-base"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             Back to Cart
           </button>
-          <div className="flex items-center gap-2 text-2xl font-bold text-gray-800">
-            <ShoppingBag className="w-8 h-8 text-blue-600" />
+          <div className="flex items-center gap-2 text-xl sm:text-2xl font-bold" style={{ color: 'var(--text)' }}>
+            <ShoppingBag className="w-6 h-6 sm:w-8 sm:h-8" style={{ color: 'var(--primary)' }} />
             Secure Checkout
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Order Summary */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
+          <div className="bg-white/70 backdrop-blur-sm rounded-lg sm:rounded-2xl shadow-md lg:shadow-xl border border-white/20 p-4 sm:p-6 lg:p-8">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 flex items-center gap-2" style={{ color: 'var(--text)' }}>
               <ShoppingBag className="w-5 h-5" />
               Order Summary
             </h2>
 
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">${amount.toFixed(2)}</span>
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex justify-between items-center py-2 sm:py-3 border-b" style={{ color: 'var(--secondary)' }}>
+                <span className="text-xs sm:text-sm">Subtotal</span>
+                <span className="font-semibold text-sm sm:text-base">${amount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                <span className="text-gray-600">Shipping</span>
-                <span className="font-semibold">
+              <div className="flex justify-between items-center py-2 sm:py-3 border-b" style={{ color: 'var(--secondary)' }}>
+                <span className="text-xs sm:text-sm">Shipping</span>
+                <span className="font-semibold text-sm sm:text-base">
                   {shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-3 text-lg font-bold text-gray-800">
+              <div className="flex justify-between items-center py-3 sm:py-4 text-base sm:text-lg font-bold" style={{ color: 'var(--text)' }}>
                 <span>Total</span>
-                <span className="text-blue-600">${totalAmount.toFixed(2)}</span>
+                <span style={{ color: 'var(--primary)' }}>${totalAmount.toFixed(2)}</span>
               </div>
             </div>
 
-            {/* Delivery Info */}
-            <span className="block mt-6 font-bold !text-orange-600">
+            <span className="block mt-4 sm:mt-6 font-bold text-orange-600 text-sm sm:text-base">
               Please ensure your delivery details are correct:
             </span>
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold text-gray-800 mb-2">
-                Delivery Address
-              </h3>
-              <div className="space-y-4">
-                <label className="text-gray-600 text-sm" htmlFor="address">
+            <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg space-y-4">
+              <div>
+                <label className="text-gray-600 text-xs sm:text-sm block mb-1" htmlFor="address">
                   Delivery Address
                 </label>
                 <input
                   type="text"
                   id="address"
                   value={deliveryInfo.address}
-                  onChange={(e) =>
-                    changeDeliveryInfo("address", e.target.value)
-                  }
-                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => changeDeliveryInfo("address", e.target.value)}
+                  className="w-full border border-gray-300 rounded p-2 sm:p-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {deliveryInfoError.address && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {deliveryInfoError.address}
-                  </p>
+                  <p className="text-xs text-red-600 mt-1">{deliveryInfoError.address}</p>
                 )}
               </div>
-              <div className="space-y-4 mt-4">
-                <label className="text-gray-600 text-sm" htmlFor="postalCode">
+              <div>
+                <label className="text-gray-600 text-xs sm:text-sm block mb-1" htmlFor="postalCode">
                   Postal Code
                 </label>
                 <input
                   type="text"
                   id="postalCode"
                   value={deliveryInfo.postalCode}
-                  onChange={(e) =>
-                    changeDeliveryInfo("postalCode", e.target.value)
-                  }
-                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => changeDeliveryInfo("postalCode", e.target.value)}
+                  className="w-full border border-gray-300 rounded p-2 sm:p-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {deliveryInfoError.postalCode && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {deliveryInfoError.postalCode}
-                  </p>
+                  <p className="text-xs text-red-600 mt-1">{deliveryInfoError.postalCode}</p>
                 )}
               </div>
-              <div className="space-y-4 mt-4">
-                <label className="text-gray-600 text-sm" htmlFor="telephone">
+              <div>
+                <label className="text-gray-600 text-xs sm:text-sm block mb-1" htmlFor="telephone">
                   Telephone
                 </label>
                 <input
                   type="text"
                   id="telephone"
                   value={deliveryInfo.telephone}
-                  onChange={(e) =>
-                    changeDeliveryInfo("telephone", e.target.value)
-                  }
-                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => changeDeliveryInfo("telephone", e.target.value)}
+                  className="w-full border border-gray-300 rounded p-2 sm:p-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {deliveryInfoError.telephone && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {deliveryInfoError.telephone}
-                  </p>
+                  <p className="text-xs text-red-600 mt-1">{deliveryInfoError.telephone}</p>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Payment Form */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+          <div className="bg-white/70 backdrop-blur-sm rounded-lg sm:rounded-2xl shadow-md lg:shadow-xl border border-white/20 p-4 sm:p-6 lg:p-8">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 flex items-center gap-2" style={{ color: 'var(--text)' }}>
               <CreditCard className="w-5 h-5" />
               Payment Details
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Card Element */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -8,6 +8,8 @@ import {
   ApiResponse,
   NewProduct,
   NewProductVariety,
+  featuredProduct,
+  subCategory,
 } from "../types";
 
 /**
@@ -33,6 +35,16 @@ export class ProductService {
     });
 
     return apiClient.get<PaginatedResponse<Product>>(`/products?${params}`);
+  }
+
+  //get featured products for homepage
+  static async getFeaturedProducts(): Promise<ApiResponse<featuredProduct[]>> {
+    return apiClient.get<ApiResponse<featuredProduct[]>>(`/products/top-featured`);
+  }
+
+    //get subCategories for homepage
+  static async getSubCategories(): Promise<ApiResponse<subCategory[]>> {
+    return apiClient.get<ApiResponse<subCategory[]>>(`/subcategories`);
   }
 
   // Get single product by ID
@@ -368,6 +380,7 @@ export class ProductService {
       };
     }
   }
+
 }
 
 export const updateVariety = ProductService.updateProductVariety;

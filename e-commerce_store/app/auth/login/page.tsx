@@ -3,17 +3,31 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { useCart } from "@/src/hooks/useCart";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
 export default function LoginPage() {
-  const { login, loading } = useAuth();
+  const { login, loading, isAuthenticated, user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { getCartCount } = useCart();
+
+  const nextUrl = useMemo(() => searchParams.get("next"), [searchParams]);
+
+  const getDefaultRoute = (role?: string | null) => {
+    if (role === "seller") return "/seller/dashboard";
+    return "/";
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+    const redirectTo = nextUrl || getDefaultRoute(user.role);
+    router.replace(redirectTo);
+  }, [isAuthenticated, user, nextUrl, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,14 +55,11 @@ export default function LoginPage() {
           }
         }
 
-        const userRole = response.data?.data?.user?.role;
-        if (userRole === "admin") {
-          router.push("/seller/dashboard");
-        } else if (userRole === "seller") {
-          router.push("/seller/dashboard");
-        } else {
-          router.push("/");
-        } 
+        const userRole = response.data?.data?.user?.role === "admin"
+          ? "seller"
+          : response.data?.data?.user?.role;
+        const redirectTo = nextUrl || getDefaultRoute(userRole);
+        router.replace(redirectTo);
       } else {
         toast.error(response?.message || "Login failed");
       }
