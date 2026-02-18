@@ -18,7 +18,7 @@ export default function ProductsGrid({
 }: ProductsGridProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-    // console.log("initialProducts", initialProducts);
+
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', page.toString());
@@ -27,8 +27,7 @@ export default function ProductsGrid({
 
   return (
     <>
-      {/* Product Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {initialProducts?.map((product) => (
           <Link key={product.id} href={`/products/${product.id}`}>
             <ProductCard product={product} />
@@ -36,22 +35,24 @@ export default function ProductsGrid({
         ))}
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-8">
-        <div className="flex items-center gap-2">
+      <div className="flex justify-center mt-8 overflow-x-auto">
+        <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-0">
           <button 
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="pagination-btn"
+            className="pagination-btn text-xs sm:text-sm"
           >
             Previous
           </button>
           
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+            const startPage = Math.max(1, currentPage - 2);
+            return startPage + i;
+          }).map((page) => (
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`pagination-btn ${
+              className={`pagination-btn text-xs sm:text-sm ${
                 currentPage === page ? 'active' : ''
               }`}
             >
@@ -62,7 +63,7 @@ export default function ProductsGrid({
           <button 
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="pagination-btn"
+            className="pagination-btn text-xs sm:text-sm"
           >
             Next
           </button>

@@ -31,9 +31,8 @@ function ProductImages({ images }: ProductImagesProps) {
       : "/images/products/default-product.jpg";
 
   return (
-    <div className="w-full max-w-lg mx-auto">
-      {/* Main Image Display */}
-      <div className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden mb-6 group">
+    <div className="w-full max-w-xs sm:max-w-md lg:max-w-lg mx-auto px-2 sm:px-0">
+      <div className="relative aspect-square bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden mb-3 sm:mb-6 group">
         <img
           src={currentImage}
           alt="Selected Product Image"
@@ -42,29 +41,25 @@ function ProductImages({ images }: ProductImagesProps) {
           height={500}
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src = "/images/products/default-product.jpg";
-            console.log("Image failed to load");
           }}
         />
 
-        {/* Image Counter */}
         {hasImages && images.length > 1 && (
-          <div className="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded-lg text-sm font-medium">
+          <div className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs sm:text-sm font-medium">
             {selectedImage + 1} / {images.length}
           </div>
         )}
       </div>
 
-      {/* Thumbnail Navigation */}
       {hasImages && images.length > 1 && (
-        <div className="space-y-4">
-          {/* Mobile: Horizontal Scroll */}
-          <div className="md:hidden">
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="lg:hidden">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`thumbnail-btn flex-shrink-0 w-16 h-16 ${
+                  className={`thumbnail-btn flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 ${
                     selectedImage === index ? "active" : ""
                   }`}
                 >
@@ -80,9 +75,8 @@ function ProductImages({ images }: ProductImagesProps) {
             </div>
           </div>
 
-          {/* Desktop: Grid Layout */}
-          <div className="hidden md:block">
-            <div className="grid grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="hidden lg:block">
+            <div className="grid grid-cols-4 gap-2 sm:gap-3">
               {images.map((image, index) => (
                 <button
                   key={index}
@@ -103,8 +97,7 @@ function ProductImages({ images }: ProductImagesProps) {
             </div>
           </div>
 
-          {/* Navigation Dots for Mobile */}
-          <div className="flex justify-center space-x-2 md:hidden">
+          <div className="flex justify-center space-x-1 sm:space-x-2 lg:hidden">
             {images.map((_, index) => (
               <button
                 key={index}
@@ -116,11 +109,10 @@ function ProductImages({ images }: ProductImagesProps) {
         </div>
       )}
 
-      {/* No Images State */}
       {!hasImages && (
         <div className="text-center text-gray-500 py-8">
           <svg
-            className="w-16 h-16 mx-auto mb-4 text-gray-300"
+            className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gray-300"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -132,7 +124,7 @@ function ProductImages({ images }: ProductImagesProps) {
               d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
             />
           </svg>
-          <p className="text-sm">No images available</p>
+          <p className="text-xs sm:text-sm">No images available</p>
         </div>
       )}
     </div>

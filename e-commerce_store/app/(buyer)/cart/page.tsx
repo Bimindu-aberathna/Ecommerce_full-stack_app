@@ -181,30 +181,28 @@ function CartPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 px-2 sm:py-10 sm:px-0">
-      <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-4 sm:p-8">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-blue-800 text-center sm:text-left">
+    <div className="min-h-screen bg-gray-50 py-4 px-2 sm:py-8 sm:px-4 lg:py-10">
+      <div className="max-w-6xl mx-auto bg-white rounded-lg sm:rounded-xl shadow-md lg:shadow-lg p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold" style={{ color: 'var(--text)' }}>
             My Cart
           </h1>
           {cartExists && (<button
-            className="text-sm !text-red-500 hover:text-gray-700 flex gap-1 !bg-transparent !border-red-500"
+            className="text-xs sm:text-sm font-medium text-red-500 hover:text-red-700 flex gap-1 items-center transition-colors"
             onClick={handleDeleteCart}
           >
-            <ClipboardX />
+            <ClipboardX size={16} />
             Clear Cart
           </button>)}
         </div>
         {cartExists ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {/* Cart Items */}
-            <div className="md:col-span-2">
-              <div className="space-y-6">
-                {/* Render Cart Items */}
+          <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <div className="space-y-4 sm:space-y-6">
                 {cart?.items.map((item) => (
                   <div
                     key={item?.id}
-                    className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 border-b pb-4 sm:pb-6"
+                    className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 lg:gap-6 border-b pb-4 sm:pb-6"
                   >
                     <img
                       src={
@@ -213,39 +211,35 @@ function CartPage() {
                           : "https://i.pcmag.com/imagery/reviews/04xfuyigoH0cSxuxGwpNFuM-5.fit_lim.size_480x280.v1727225999.jpg"
                       }
                       alt={item?.productVariety?.product?.name}
-                      className="w-20 h-20 object-cover rounded mb-2 sm:mb-0"
+                      className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded"
                     />
                     <div className="flex-1 w-full">
-                      <h2 className="text-base sm:text-lg font-semibold text-gray-700">
+                      <h2 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: 'var(--text)' }}>
                         {item?.productVariety?.product?.name}
                       </h2>
-                      <p className="text-xs sm:text-sm text-gray-500">
-                        {item?.productVariety?.product?.brand} •{" "}
-                        {item?.productVariety?.name}
+                      <p className="text-xs sm:text-sm mt-1" style={{ color: 'var(--secondary)' }}>
+                        {item?.productVariety?.product?.brand} • {item?.productVariety?.name}
                       </p>
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 mt-3">
+                        <div className="flex items-center gap-1 sm:gap-2">
                           <button
-                            className="cart-quantity-btn px-2 py-1 border rounded hover:bg-gray-100 transition-colors"
+                            className="cart-quantity-btn px-2 py-1 text-xs sm:text-sm"
                             onClick={() => handleQuantityChange(item.id, -1)}
                           >
                             -
                           </button>
-
-                          <span className="px-3 sm:px-4 font-medium">
+                          <span className="px-2 sm:px-3 font-medium text-sm">
                             {item.quantity}
                           </span>
-
                           <button
-                            className="cart-quantity-btn px-2 py-1 border rounded hover:bg-gray-100 transition-colors"
+                            className="cart-quantity-btn px-2 py-1 text-xs sm:text-sm"
                             onClick={() => handleQuantityChange(item.id, +1)}
                           >
                             +
                           </button>
                         </div>
-
                         <button
-                          className="cart-remove-btn text-red-500 hover:text-red-700 p-1 rounded transition-colors"
+                          className="cart-remove-btn text-red-500 hover:text-red-700 p-1 text-xs sm:text-sm"
                           onClick={() => removeItem(item?.id)}
                           title="Remove item"
                         >
@@ -253,33 +247,32 @@ function CartPage() {
                         </button>
                       </div>
                     </div>
-                    <div className="text-base sm:text-lg font-bold !text-gray-600 mt-2 sm:mt-0">
+                    <div className="text-sm sm:text-base lg:text-lg font-bold" style={{ color: 'var(--primary)' }}>
                       Rs. {item?.productVariety?.product?.price}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            {/* Cart Summary */}
-            <div className="bg-gray-100 rounded-lg p-4 sm:p-6 h-fit mt-6 md:mt-0">
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-4 text-gray-700">
+            <div className="bg-gray-100 rounded-lg p-4 sm:p-6 h-fit">
+              <h3 className="text-base sm:text-lg lg:text-xl font-semibold mb-3 sm:mb-4" style={{ color: 'var(--text)' }}>
                 Order Summary
               </h3>
-              <div className="flex justify-between mb-2 text-gray-600 text-sm sm:text-base">
+              <div className="flex justify-between mb-2 text-xs sm:text-sm lg:text-base" style={{ color: 'var(--secondary)' }}>
                 <span>Subtotal</span>
-                <span>{cart?.originalTotal ? cart.originalTotal : 0}</span> lkr
+                <span>{cart?.originalTotal ? cart.originalTotal : 0} lkr</span>
               </div>
-              <div className="flex justify-between mb-2 text-gray-600 text-sm sm:text-base">
+              <div className="flex justify-between mb-2 text-xs sm:text-sm lg:text-base" style={{ color: 'var(--secondary)' }}>
                 <span>Discount</span>
-                <span>{cart?.totalSavings ? cart.totalSavings : 0}</span> lkr
+                <span>{cart?.totalSavings ? cart.totalSavings : 0} lkr</span>
               </div>
-              <div className="flex justify-between mb-2 text-gray-600 text-md sm:text-base">
+              <div className="flex justify-between mb-2 text-sm sm:text-base lg:text-lg font-semibold" style={{ color: 'var(--text)' }}>
                 <span>Final Price</span>
-                <span>{cart?.calculatedTotal ? cart.calculatedTotal : 0}</span> lkr
+                <span style={{ color: 'var(--primary)' }}>{cart?.calculatedTotal ? cart.calculatedTotal : 0} lkr</span>
               </div>
               {cart?.discountPercentageGiven && (
                 <div>
-                  <span className="text-green-600 font-semibold">
+                  <span className="text-green-600 font-semibold text-xs sm:text-sm">
                     {cart.discountPercentageGiven}% Off deal
                   </span>
                 </div>
@@ -290,22 +283,27 @@ function CartPage() {
               </div>
               <div className="flex justify-between font-bold text-gray-800 text-base sm:text-lg border-t pt-2 sm:pt-4 mt-2 sm:mt-4">
                 <span>Total</span>
-                <span>{((cart?.calculatedTotal && cart?.shippingCost) ? cart.calculatedTotal + cart.shippingCost : 0).toFixed(2)}</span> lkr
+                <span style={{ color: 'var(--primary)' }} className="font-bold">
+                  {((cart?.calculatedTotal && cart?.shippingCost) ? cart.calculatedTotal + cart.shippingCost : 0).toFixed(2)} lkr
+                </span>
               </div>
-              <div className="flex justify-center text-gray-400 text-xs sm:text-sm border-t mt-2">
+              <div className="flex justify-center text-xs sm:text-sm border-t mt-2 pt-2" style={{ color: 'var(--text-muted)' }}>
                 <span>includes government taxes</span>
               </div>
-              <button className="mt-4 sm:mt-6 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-2 sm:py-3 rounded transition" onClick={(e) => {
-                e.preventDefault();
-                handleCheckout();
-              }}>
+              <button 
+                className="mt-4 sm:mt-6 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-2 sm:py-3 rounded transition hover:opacity-90 text-sm sm:text-base" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleCheckout();
+                }}
+              >
                 {fetchUserData ? "Loading..." : "Checkout"}
               </button>
             </div>
           </div>
         ) : (
-          <div className="text-center text-gray-500">
-            <p>Your cart is empty</p>
+          <div className="text-center py-12" style={{ color: 'var(--secondary)' }}>
+            <p className="text-sm sm:text-base">Your cart is empty</p>
           </div>
         )}
       </div>

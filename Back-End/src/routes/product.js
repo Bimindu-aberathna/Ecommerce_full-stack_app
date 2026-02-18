@@ -198,6 +198,98 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/top-featured", async (req, res) => {
+  try {
+    const { limit = 5 } = req.query;
+    const products = await Product.findAll({
+      where: {
+        isFeatured: true,
+        isActive: true,
+      },
+      include: [
+        {
+          model: ProductVariety,
+          as: "varieties",
+          required: false,
+        },
+        {
+          model: SubCategory,
+          as: "subCategory",
+          
+          include: [
+            {
+              model: Category,
+              as: "category",
+            },
+          ],
+        }
+      ],
+      order: [["ratingAverage", "DESC"], ["updatedAt", "DESC"], ["createdAt", "DESC"]],
+      limit: parseInt(limit),
+      distinct: true,
+      
+    });
+    if (products.length <4) {
+      const additionalProducts = await Product.findAll({
+        where: {
+          isFeatured: false,
+          isActive: true,
+        },
+        include: [
+          {
+            model: ProductVariety,
+            as: "varieties",
+            required: false,
+          },
+          {
+            model: SubCategory,
+            as: "subCategory",
+            where:
+              Object.keys(subCategoryWhere).length > 0
+                ? subCategoryWhere
+                : undefined,
+            include: [
+              {
+                model: Category,
+                as: "category",
+                where:
+                  Object.keys(categoryWhere).length > 0
+                    ? categoryWhere
+                    : undefined,
+              },
+            ],
+          }
+        ],
+        order: [["ratingAverage", "DESC"], ["updatedAt", "DESC"], ["createdAt", "DESC"]],
+        limit: 4 - products.length,
+        distinct: true,
+      });
+      products.push(...additionalProducts);
+    }
+
+    res.json({
+      success: true,
+      data: products.map((product) => {
+        const productData = product.toJSON();
+        return {
+          ...productData,
+          discountPercentage: product.getDiscountPercentage(),
+          isAvailable: product.getIsAvailable(),
+          totalStock: product.getTotalStock(),
+        };
+      }),
+    });
+  } catch (error) {
+    console.error("Get top featured products error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch top featured products",
+      error:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id, {

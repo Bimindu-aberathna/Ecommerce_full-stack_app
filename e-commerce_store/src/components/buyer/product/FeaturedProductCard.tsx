@@ -1,17 +1,14 @@
-import React from 'react';
-import { Product } from '../../../types';
-import { Card, CardContent } from '../../ui/Card';
-import { Button } from '../../ui/Button';
-import { formatCurrency } from '../../../lib/utils';
-import Image from 'next/image';
+import React from "react";
+import { featuredProduct, Product } from "../../../types";
+import { Card, CardContent } from "../../ui/Card";
+import { Button } from "../../ui/Button";
+import { formatCurrency } from "../../../lib/utils";
+import Image from "next/image";
+import { json } from "stream/consumers";
 
-/**
- * ProductCard Component - Displays product information in a card format
- * Used in product listings, search results, and category pages
- * Includes product image, name, price, and action buttons
- */
+
 interface ProductCardProps {
-  product: Product;
+  product: featuredProduct;
   onAddToCart?: (productId: string) => void;
   onAddToWishlist?: (productId: string) => void;
   className?: string;
@@ -21,12 +18,46 @@ export const FeaturedProductCard: React.FC<ProductCardProps> = ({
   product,
   onAddToCart,
   onAddToWishlist,
-  className
+  className,
 }) => {
-  const hasDiscount = product.originalPrice && product.originalPrice > product.price;
-  const discountPercentage = hasDiscount 
-    ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
+  const hasDiscount =
+    product.originalPrice && product.originalPrice > product.price;
+  const discountPercentage = hasDiscount
+    ? Math.round(
+        ((product.originalPrice! - product.price) / product.originalPrice!) *
+          100,
+      )
     : 0;
+
+  const getImageUrl = (imagesString?: string): string => {
+  if (!imagesString) return "/images/products/default-product.jpg";
+
+  try {
+    const parsed = JSON.parse(imagesString);
+
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return "/images/products/default-product.jpg";
+    }
+
+    // Case 1: Array of strings
+    if (typeof parsed[0] === "string") {
+      return parsed[0];
+    }
+
+    // Case 2: Array of objects with url
+    if (typeof parsed[0] === "object" && parsed[0].url) {
+      // Prefer primary image
+      const primary = parsed.find((img: any) => img.isPrimary);
+      return primary?.url || parsed[0].url;
+    }
+
+    return "/images/products/default-product.jpg";
+  } catch (error) {
+    console.error("Invalid image JSON:", error);
+    return "/images/products/default-product.jpg";
+  }
+};
+
 
   return (
     <Card className={className} href={`/products/${product.id}`}>
@@ -34,7 +65,7 @@ export const FeaturedProductCard: React.FC<ProductCardProps> = ({
         {/* Product Image */}
         <div className="aspect-square overflow-hidden rounded-t-lg bg-gray-100">
           <Image
-            src={product.images[0] || '/images/products/default-product.jpg'}
+            src={getImageUrl(product?.images || undefined)}
             alt={product.name}
             className="h-full w-full object-cover transition-transform hover:scale-105"
             width={300}
@@ -71,7 +102,7 @@ export const FeaturedProductCard: React.FC<ProductCardProps> = ({
 
       <CardContent className="p-4">
         {/* Product Name */}
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+        <h3 className="font-semibold text-lg mb-2 line-clamp-2 min-h-[3rem]" style={{ color: 'var(--text)' }}>
           {product.name}
         </h3>
 
@@ -80,9 +111,7 @@ export const FeaturedProductCard: React.FC<ProductCardProps> = ({
 
         {/* Rating */}
         <div className="flex items-center mb-2">
-          <div className="flex text-yellow-400">
-            ⭐⭐⭐⭐⭐
-          </div>
+          <div className="flex text-yellow-400">⭐⭐⭐⭐⭐</div>
           <span className="text-sm text-gray-500 ml-1">(4.5)</span>
         </div>
 
@@ -107,7 +136,7 @@ export const FeaturedProductCard: React.FC<ProductCardProps> = ({
             }}
             disabled={product.stock === 0}
           >
-            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+            {product.stock === 0 ? "Out of Stock" : "More Details"}
           </Button>
         </div>
 

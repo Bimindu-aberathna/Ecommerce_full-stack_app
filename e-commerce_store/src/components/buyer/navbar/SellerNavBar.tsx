@@ -66,7 +66,7 @@ export default function SellerNavbar({
       <div className="flex items-center">
         <button
           aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
-          onClick={toggleExpansion} // ✅ Use the toggle function from hook
+          onClick={toggleExpansion}
           className="ml-auto rounded hover:!bg-gray-700 mr-1 w-12 h-12 justify-center flex items-center !p-0"
         >
           {!isExpanded ? (

@@ -13,9 +13,13 @@ import Image from "next/image";
 import CategoriesList from "./CategoresList";
 import Link from "next/link";
 import { useAuth } from "@/src/hooks/useAuth";
+import { useCart } from "@/src/hooks/useCart";
+import { ToastContainer } from "react-toastify";
 
 export default function CustomerNavbar() {
   const { isAuthenticated, user, logout } = useAuth();
+  //get cart items count from hooks
+  const {itemCount} = useCart();
 
   const handleLogout = () => {
     logout();
@@ -65,7 +69,7 @@ export default function CustomerNavbar() {
 
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {/* Show notifications only for authenticated users */}
-            {isAuthenticated && (
+            {/* {isAuthenticated && (
               <button
                 type="button"
                 className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
@@ -76,17 +80,19 @@ export default function CustomerNavbar() {
                 <div className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500" />
                 <Bell aria-hidden="true" className="size-6" />
               </button>
-            )}
+            )} */}
               <button
                 type="button"
-                className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
+                className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden mr-4 mt-1"
                 style={{ backgroundColor: "transparent" }}
                 onClick={() => window.location.href = '/cart'}
               >
                 <span className="absolute -inset-1.5" />
                 <span className="sr-only">View notifications</span>
                 <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-red-500">
-                  5
+                  <span className="text-white text-xs font-bold flex items-center justify-center h-full">
+                    {itemCount}
+                  </span>
                 </div>
                 <ShoppingCart aria-hidden="true" className="size-6" />
               </button>
@@ -205,6 +211,7 @@ export default function CustomerNavbar() {
           )}
         </div>
       </DisclosurePanel>
+      <ToastContainer />
     </Disclosure>
   );
 }
