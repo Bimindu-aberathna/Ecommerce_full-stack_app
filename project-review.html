@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Review - Required Changes</title>
+  <style>
+    body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; margin: 0; padding: 24px; background: #f7f7f9; color: #1f2328; }
+    h1 { margin-bottom: 8px; }
+    h2 { margin-top: 28px; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; }
+    .meta { color: #6b7280; margin-bottom: 20px; }
+    ul { padding-left: 20px; }
+    li { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h1>Project Review: Required Changes for Industry Standards</h1>
+  <div class="meta">Repository: Ecommerce_full-stack_app • Review date: 2026-05-23</div>
+
+  <h2>Unused or likely-unused files/folders</h2>
+  <ul>
+    <li><code>/todo.html</code> is not referenced anywhere (only ignored in <code>.gitignore</code>). Remove or move to docs.</li>
+    <li><code>/e-commerce_store/Explanations/explanation1.html</code> is not referenced in code. Remove or move to docs.</li>
+    <li><code>/Back-End/test-3nf.js</code> and <code>/Back-End/test-relationships.js</code> are not referenced. Remove or move to docs.</li>
+    <li><code>/Back-End/tests/routes/category.test.js</code> is empty. Implement tests or remove the placeholder.</li>
+  </ul>
+
+  <h2>Unused dependencies to remove or relocate</h2>
+  <ul>
+    <li>Frontend <code>e-commerce_store/package.json</code>: <code>fs</code>, <code>nodemailer</code>, <code>stripe</code>, <code>socket.io-client</code> are not imported anywhere.</li>
+    <li>Backend <code>Back-End/package.json</code>: <code>body-parser</code>, <code>bull</code>, <code>ioredis</code>, <code>socket.io</code>, <code>ejs</code> appear unused. <code>ejs</code> only shows as an unused import in <code>src/routes/product.js</code>.</li>
+  </ul>
+
+  <h2>Documentation and configuration mismatches</h2>
+  <ul>
+    <li>Root <code>README.md</code> says Next.js 14, React Context, and Fetch API; actual code uses Next.js 15.4.2, Redux Toolkit, and Axios. Update the README.</li>
+    <li>Root <code>README.md</code> says frontend tests run with <code>npm test</code>, but there is no frontend test script. Add tests or update the docs.</li>
+    <li><code>e-commerce_store/README.md</code> is the default create-next-app README. Replace with project-specific setup and usage docs.</li>
+    <li><code>Back-End/.env.example</code> references MongoDB and port 3000; actual code uses MySQL and expects variables like <code>DB_HOST</code>, <code>CLIENT_URL</code>, <code>STRIPE_SECRET_KEY</code>, <code>SMTP_USER</code>, and <code>FRONTEND_URL</code>.</li>
+    <li><code>Back-End/.env.mysql</code> is committed even though it’s an environment file. Convert it to a sample file and keep real values out of the repo.</li>
+    <li>Docs say the server auto-creates tables, but there is no Sequelize <code>sync</code> or migration execution in code. Either implement migrations/sync or update docs.</li>
+  </ul>
+
+  <h2>Backend code issues to address</h2>
+  <ul>
+    <li>Duplicate registration of <code>/api/users</code> routes in <code>Back-End/src/app.js</code>.</li>
+    <li>Testing middleware <code>test_route</code> is always enabled for <code>/api/auth</code>; remove or gate it behind <code>NODE_ENV</code>. It also logs <code>res.body</code> instead of <code>req.body</code>.</li>
+    <li>Default port in <code>app.js</code> is 3000, while docs and frontend expect 5000. Align the default and docs.</li>
+    <li>Inconsistent naming (<code>src/Services</code> uppercase, <code>FireBaseServicees.js</code>) should be standardized.</li>
+    <li><code>emailService.js</code> uses Yahoo SMTP but logs “Gmail” and relies on env vars that are not documented.</li>
+  </ul>
+
+  <h2>Frontend quality issues (linting)</h2>
+  <ul>
+    <li><code>npm run lint</code> fails with many <code>no-explicit-any</code> errors, unused variables, and missing hook dependencies. Fix to make lint pass.</li>
+    <li>Multiple <code>&lt;img&gt;</code> tags trigger Next.js lint warnings; consider <code>next/image</code> for optimization.</li>
+  </ul>
+
+  <h2>Build/Test/CI standards</h2>
+  <ul>
+    <li>Backend tests fail because the only test file is empty. Add tests or remove placeholders.</li>
+    <li>Frontend build fails when Google Fonts are unavailable; consider self-hosting fonts with <code>next/font/local</code> or bundling assets.</li>
+    <li>No CI workflows under <code>.github/workflows</code>; add CI to run backend tests and frontend lint/build.</li>
+    <li>Consider adding dependency/vulnerability scanning (e.g., Dependabot) and documenting audit steps.</li>
+  </ul>
+</body>
+</html>
