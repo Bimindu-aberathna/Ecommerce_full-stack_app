@@ -358,6 +358,25 @@ export class ProductService {
     }
   }
 
+  // get all brands info
+  static async getBrands(categoryIds: string) {
+    const res = await axios.get(`/api/categories/brands?categoryIds=${categoryIds}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (res.status >= 200 && res.status < 300) {
+      return { success: true as const, data: res.data };
+    } else if (res.status >= 400 && res.status < 500) {
+      return {
+        success: false as const,
+        message: res.data.message || "Failed to fetch brands",
+      };
+    } else {
+      return { success: false as const, message: "Failed to fetch brands" };
+    }
+  }
+
   // get low stock products for seller dashboard
   static async getLowStockProducts(token: string) {
     const res = await axios.get(`/api/products/seller/lowStock`, {

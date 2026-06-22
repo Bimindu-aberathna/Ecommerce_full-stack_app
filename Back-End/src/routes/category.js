@@ -1,5 +1,6 @@
 const express = require("express");
-const { Category, SubCategory } = require("../models");
+const { Category, SubCategory, Product } = require("../models");
+const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const { auth, adminAuth, optionalAuth } = require("../middleware/auth");
 const { categoryValidation } = require("../middleware/validation");
@@ -34,6 +35,67 @@ router.get("/", optionalAuth, async (req, res) => {
     });
   }
 });
+
+//Get brand names by categories
+router.get("/brands", async (req, res) => {
+  try {
+    const { categoryIds } = req.query;
+    const categoryList = categoryIds
+      ? categoryIds.split(",").map((id) => parseInt(id, 10)).filter((id) => Number.isInteger(id))
+      : [];
+
+    const hasCategoryFilter = categoryList.length > 0;
+
+    const whereClause = {
+      brand: { [Op.ne]: null },
+    };
+
+    if (hasCategoryFilter) {
+      whereClause["$subCategory.categoryId$"] = { [Op.in]: categoryList };
+    }
+
+    const brands = await Product.findAll({
+      attributes: [
+        "brand",
+        [Sequelize.fn("COUNT", Sequelize.col("Product.id")), "productCount"],
+      ],
+      include: hasCategoryFilter
+        ? [
+            {
+              model: SubCategory,
+              as: "subCategory", // must match the alias in your association
+              attributes: [],
+            },
+          ]
+        : [],
+      where: whereClause,
+      group: ["brand"],
+      having: hasCategoryFilter
+        ? undefined // if category filter, allow ≥1 product
+        : Sequelize.where(
+            Sequelize.fn("COUNT", Sequelize.col("Product.id")),
+            Op.gte,
+            2
+          ),
+      order: [["brand", "ASC"]],
+      raw: true,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: brands.map((b) => b.brand),
+    });
+  } catch (error) {
+    console.error("Error fetching brands:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch brands",
+    });
+  }
+});
+
+
+
 
 //get single category by ID with related subcategories
 router.get("/:id", optionalAuth, async (req, res) => {

@@ -16,9 +16,16 @@ export default async function ProductsPage({
 }: {
   searchParams: Promise<{
     category?: string;
-    subcategory?: string;
+    subCategory?: string;
     sort?: string;
     page?: string;
+    tags?: string;
+      minPrice?: number;
+      maxPrice?: number;
+      brands?: string[];
+      rating?: number;
+      inStock?: boolean;
+
   }>;
 }) {
   
@@ -26,9 +33,12 @@ export default async function ProductsPage({
 
   const products = await fetchProducts({
     category: params.category,
-    subcategory: params.subcategory,
-    sort: params.sort || "featured",
-    page: parseInt(params.page || "1"),
+    subCategory: params.subCategory,
+    minPrice: params.minPrice,
+    maxPrice: params.maxPrice,
+    brands: params.brands,
+    rating: params.rating,
+    inStock: params.inStock,
   });
 
   return (
@@ -37,7 +47,7 @@ export default async function ProductsPage({
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4">
           {params.category
             ? "Category Products"
-            : params.subcategory
+            : params.subCategory
             ? "Subcategory Products"
             : "All Products"}
         </h1>
@@ -56,7 +66,7 @@ export default async function ProductsPage({
             <p className="text-xs sm:text-sm" style={{ color: 'var(--secondary)' }}>
               Showing {products.from || 1}-{products.to || 0} of {products.total || 0} products
               {params.category && ` in category ${params.category}`}
-              {params.subcategory && ` in subcategory ${params.subcategory}`}
+              {params.subCategory && ` in subcategory ${params.subCategory}`}
             </p>
             <SortDropdown currentSort={params.sort || "featured"} />
           </div>
@@ -77,18 +87,29 @@ export default async function ProductsPage({
 
 async function fetchProducts(params: {
   category?: string;
-  subcategory?: string;
-  sort?: string;
-  page: number;
+  subCategory?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  brands?: string[];
+  rating?: number;
+  inStock?: boolean;
+  tags?: string[];
 }) {
   try {
     const searchParams = new URLSearchParams();
 
     if (params.category) searchParams.set("category", params.category);
-    if (params.subcategory) searchParams.set("subcategory", params.subcategory);
-    if (params.sort) searchParams.set("sort", params.sort);
-    searchParams.set("page", params.page.toString());
-    searchParams.set("limit", "12");
+    if (params.subCategory) searchParams.set("subcategory", params.subCategory);
+    if (params.minPrice) searchParams.set("minPrice", params.minPrice.toString());
+    if (params.maxPrice) searchParams.set("maxPrice", params.maxPrice.toString());
+    if (params.brands) {
+      params.brands.forEach((brand) => searchParams.append("brands", brand));
+    }
+    if (params.rating) searchParams.set("rating", params.rating.toString());
+    if (params.inStock !== undefined) searchParams.set("inStock", params.inStock.toString());
+    if (params.tags) {
+      params.tags.forEach((tag) => searchParams.append("tags", tag));
+    }
 
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/products?${searchParams}`,

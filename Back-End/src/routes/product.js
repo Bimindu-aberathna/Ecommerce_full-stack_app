@@ -45,7 +45,7 @@ router.get("/", async (req, res) => {
       subcategory,
       minPrice,
       maxPrice,
-      brand,
+      brands = [],
       isActive,
       isFeatured,
       inStock,
@@ -71,8 +71,8 @@ router.get("/", async (req, res) => {
     }
 
     // Filter by brand
-    if (brand) {
-      whereConditions.brand = { [Op.like]: `%${brand}%` };
+    if (brands.length > 0) {
+      whereConditions.brand = { [Op.in]: brands };
     }
 
     // Filter by active status
@@ -215,21 +215,24 @@ router.get("/top-featured", async (req, res) => {
         {
           model: SubCategory,
           as: "subCategory",
-          
+
           include: [
             {
               model: Category,
               as: "category",
             },
           ],
-        }
+        },
       ],
-      order: [["ratingAverage", "DESC"], ["updatedAt", "DESC"], ["createdAt", "DESC"]],
+      order: [
+        ["ratingAverage", "DESC"],
+        ["updatedAt", "DESC"],
+        ["createdAt", "DESC"],
+      ],
       limit: parseInt(limit),
       distinct: true,
-      
     });
-    if (products.length <4) {
+    if (products.length < 4) {
       const additionalProducts = await Product.findAll({
         where: {
           isFeatured: false,
@@ -258,9 +261,13 @@ router.get("/top-featured", async (req, res) => {
                     : undefined,
               },
             ],
-          }
+          },
         ],
-        order: [["ratingAverage", "DESC"], ["updatedAt", "DESC"], ["createdAt", "DESC"]],
+        order: [
+          ["ratingAverage", "DESC"],
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
         limit: 4 - products.length,
         distinct: true,
       });
@@ -284,8 +291,7 @@ router.get("/top-featured", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch top featured products",
-      error:
-        process.env.NODE_ENV === "development" ? error.message : undefined,
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 });
@@ -723,7 +729,6 @@ router.get("/seller/lowStock", auth, adminAuth, async (req, res) => {
           [Op.lte]: Sequelize.col("preorderLevel"),
         },
         ignoreWarnings: false,
-
       },
       include: [
         {
@@ -1109,6 +1114,7 @@ router.post(
     }
   },
 );
+
 
 //Update product variety stock (Admin only)
 router.patch("/varieties/:varietyId", auth, adminAuth, async (req, res) => {

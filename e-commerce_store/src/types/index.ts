@@ -173,7 +173,7 @@ export interface ProductFilters {
   subCategory?: string;
   minPrice?: number;
   maxPrice?: number;
-  brand?: string;
+  brands?: string[];
   rating?: number;
   inStock?: boolean;
   tags?: string[];
