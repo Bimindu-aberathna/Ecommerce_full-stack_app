@@ -91,3 +91,6 @@ coverage/
 *.tar.gz
 .cache/
 todo.html
+
+Back-End/secrets/serviceAccountKey.json
+Back-End/secrets/
