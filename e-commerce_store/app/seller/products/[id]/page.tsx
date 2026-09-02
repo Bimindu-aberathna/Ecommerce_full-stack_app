@@ -8,9 +8,9 @@ import EditProduct from "@/src/components/seller/product/EditProduct";
 import axios from "axios";
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 interface ProductVariety {
@@ -18,6 +18,7 @@ interface ProductVariety {
   productId: number;
   name: string;
   stock: number;
+  preorderLevel: number;
   ignoreWarnings: boolean;
   createdAt: string;
   updatedAt: string;

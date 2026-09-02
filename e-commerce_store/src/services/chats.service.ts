@@ -122,7 +122,7 @@ export class ChatService {
   }: {
     isAuthenticated: boolean;
     token: string | null;
-    productId: string;
+    productId?: string;
     message: string;
   }) {
     if (!isAuthenticated || !token) {
@@ -164,7 +164,7 @@ export class ChatService {
     }
   }
 
-  static async fetchSellerMassages(customerId: string, token: string) {
+  static async fetchSellerMassages(customerId: string | number, token: string) {
     try {
       const response = await axios.get(
         `/api/chat/admin/chats/user/${customerId}`,

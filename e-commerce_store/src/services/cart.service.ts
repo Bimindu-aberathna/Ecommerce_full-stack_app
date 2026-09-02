@@ -1,4 +1,14 @@
 import axios from 'axios';
+
+interface CartAvailabilityItem {
+  name: string;
+}
+
+interface CartAvailabilityResponse {
+  success: boolean;
+  message?: string;
+  lowStockItems: CartAvailabilityItem[];
+}
 import { fetchCartObj, addToCartObj, updateCartObj, removeCartItemObj } from '../types';
 
 export class CartService {
@@ -182,12 +192,12 @@ export class CartService {
     isAuthenticated: boolean;
     token: string;
     cartId: string;
-  }) {
+  }): Promise<CartAvailabilityResponse> {
     if (!isAuthenticated) {
-      return { success: false, message: 'User not authenticated' };
+      return { success: false, message: 'User not authenticated', lowStockItems: [] };
     }
     if (!token) {
-      return { success: false, message: 'No token provided' };
+      return { success: false, message: 'No token provided', lowStockItems: [] };
     }
     try {
       const response = await axios.get(
@@ -208,7 +218,7 @@ export class CartService {
           lowStockItems: error.response.data.lowStockItems || []
         };
       }
-      return { success: false, message: 'Network error' };
+      return { success: false, message: 'Network error', lowStockItems: [] };
     }
   }
 

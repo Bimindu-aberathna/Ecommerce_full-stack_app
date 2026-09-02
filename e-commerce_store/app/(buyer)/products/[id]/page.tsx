@@ -7,9 +7,9 @@ import VarietySelector from "@/src/components/buyer/product/VarietySelector";
 import ChatButton from "@/src/components/buyer/chat/ChatButton";
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 interface ProductVariety {
@@ -75,8 +75,9 @@ interface Product {
 // Generate metadata for SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
+    const { id } = await params;
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/products/${params.id}`
+      `${process.env.NEXT_PUBLIC_API_URL}/products/${id}`
     );
     const product = response.data.data || response.data;
 
@@ -92,7 +93,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const productId = params.id;
+  const { id: productId } = await params;
   const stringToJson = (str: string) => {
     try {
       const json = JSON.parse(str);

@@ -8,48 +8,12 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { useLoading } from "@/src/hooks/useLoading";
 import OrderService from "@/src/services/orders.services";
 import ListItem from "@/src/components/seller/orders/listItem";
-
-
-interface OrderItem {
-  orderItemId: number;
-  quantity: number;
-  price: string;
-  totalPrice: string;
-  product: {
-    id: number;
-    name: string;
-    brand: string;
-    images: string;
-    weight: string;
-    variety: string;
-  };
-}
-
-interface Order {
-  orderId: number;
-  orderNumber: string;
-  totalAmount: string;
-  status: string;
-  viewed: boolean;
-  createdAt: string;
-  updatedAt: string;
-  shippingAddress: string;
-  postalCode: string;
-  telephone: string;
-  trackingNumber?: string | null;
-  itemCount: number;
-  customer: {
-    id: number;
-    email: string;
-    name: string;
-  };
-  items: OrderItem[];
-}
+import type { Orders } from "@/src/types";
 
 const Orders: React.FC = () => {
   const { isAuthenticated, logout, token, user } = useAuth();
   const { showLoading, hideLoading, updateMessage, isLoading } = useLoading();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<Orders[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
   const previousOrderCount = useRef(0);
@@ -169,7 +133,6 @@ const Orders: React.FC = () => {
             <ListItem
               key={order.orderId}
               order={order}
-              onClick={() => router.push(`/seller/orders/${order.orderId}`)}
             />
           ))}
         </div>

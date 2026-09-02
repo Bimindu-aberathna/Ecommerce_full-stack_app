@@ -22,6 +22,7 @@ export interface Product {
   category: Category;
   brand: string;
   sku: string;
+  warranty?: string;
   stock: number;
   weight?: number;
   dimensions?: {
@@ -32,6 +33,7 @@ export interface Product {
   tags: string[];
   features: string[];
   isActive: boolean;
+  isFeatured: boolean;
   sellerId: string;
   seller: User;
   createdAt: Date;
@@ -298,7 +300,7 @@ export interface Orders {
     email: string;
     name: string;
   };
-  items: OrderItem[];
+  items: OrderItemResponse[];
 }
 
 export interface OrderItemResponse {

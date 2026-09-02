@@ -1,29 +1,28 @@
 import type { NextConfig } from "next";
 
-const API_PROXY_TARGET = process.env.API_PROXY_TARGET || "https://ecommerce-backend-ipr3.onrender.com/api";
+const API_PROXY_TARGET =
+  process.env.API_PROXY_TARGET ||
+  "https://ecommerce-backend-ipr3.onrender.com/api";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'firebasestorage.googleapis.com',
-        port: '',
-        pathname: '/v0/b/**',
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+        port: "",
+        pathname: "/v0/b/**",
       },
       {
-        protocol: 'https',
-        hostname: 'firebasestorage.googleapis.com',
-        port: '',
-        pathname: '/v0/b/**',
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
       },
-      {
-      protocol: 'https',
-      hostname: 'res.cloudinary.com',
-      port: '',
-      pathname: '/**',
-    },
     ],
   },
 

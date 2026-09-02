@@ -29,11 +29,15 @@ export const FeaturedProductCard: React.FC<ProductCardProps> = ({
       )
     : 0;
 
-  const getImageUrl = (imagesString?: string): string => {
-  if (!imagesString) return "/images/products/default-product.jpg";
+  const getImageUrl = (images: string | string[] | undefined): string => {
+  if (!images) return "/images/products/default-product.jpg";
+
+  if (Array.isArray(images)) {
+    return images[0] || "/images/products/default-product.jpg";
+  }
 
   try {
-    const parsed = JSON.parse(imagesString);
+    const parsed = JSON.parse(images);
 
     if (!Array.isArray(parsed) || parsed.length === 0) {
       return "/images/products/default-product.jpg";
@@ -65,7 +69,7 @@ export const FeaturedProductCard: React.FC<ProductCardProps> = ({
         {/* Product Image */}
         <div className="aspect-square overflow-hidden rounded-t-lg bg-gray-100">
           <Image
-            src={getImageUrl(product?.images || undefined)}
+            src={getImageUrl(product.images)}
             alt={product.name}
             className="h-full w-full object-cover transition-transform hover:scale-105"
             width={300}

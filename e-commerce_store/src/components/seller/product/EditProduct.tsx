@@ -127,13 +127,16 @@ function EditProduct({
             productData: {
               name: formData.name,
               description: formData.description,
-              price: formData.price,
-              originalPrice: formData.originalPrice,
+              price: Number(formData.price),
+              originalPrice: Number(formData.originalPrice),
               brand: formData.brand,
               sku: formData.sku,
-              weight: formData.weight,
+              weight: Number(formData.weight),
               warranty: formData.warranty,
-              tags: formData.tags,
+              tags: formData.tags
+                .split(",")
+                .map((tag) => tag.trim())
+                .filter(Boolean),
               isActive: formData.isActive,
               isFeatured: formData.isFeatured,
             },
