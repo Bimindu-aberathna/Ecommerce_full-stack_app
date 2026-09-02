@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const API_PROXY_TARGET = process.env.API_PROXY_TARGET || "http://localhost:5000/api";
+const API_PROXY_TARGET = process.env.API_PROXY_TARGET || "https://ecommerce-backend-ipr3.onrender.com/api";
 
 const nextConfig: NextConfig = {
   /* config options here */

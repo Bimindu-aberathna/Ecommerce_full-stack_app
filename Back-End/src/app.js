@@ -26,8 +26,14 @@ const { adminAuth } = require('./middleware/auth');
 
 const app = express();
 
-// Connect to MySQL Database
-connectDB();
+const startServer = async () => {
+  // Connect to MySQL Database before starting the HTTP server
+  try {
+    await connectDB();
+  } catch (err) {
+    // Keep error output simple; connectDB already logs the message.
+    process.exit(1);
+  }
 
 // Security middleware
 app.use(helmet());
@@ -107,9 +113,12 @@ app.use('*', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-});
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV}`);
+  });
+};
+
+startServer();
 
 module.exports = app;

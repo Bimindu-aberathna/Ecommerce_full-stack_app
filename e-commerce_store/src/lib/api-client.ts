@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://ecommerce-backend-ipr3.onrender.com/api";
 
 /**
  * Base API client with error handling
