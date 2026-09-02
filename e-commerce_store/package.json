@@ -21,7 +21,7 @@
     "filepond-plugin-image-preview": "^4.6.12",
     "fs": "^0.0.1-security",
     "lucide-react": "^0.525.0",
-    "next": "15.4.2",
+    "next": "15.4.10",
     "nodemailer": "^7.0.6",
     "react": "19.1.0",
     "react-chartjs-2": "^5.3.1",
