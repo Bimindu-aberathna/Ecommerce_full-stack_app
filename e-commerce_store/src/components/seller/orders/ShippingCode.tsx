@@ -74,7 +74,7 @@ export default function ShippingCode({ OrderId }: { OrderId: string | number }) 
           </div>
         </div>
       )}
-      <ToastContainer />
+      <ToastContainer autoClose={1000} />
     </div>
   );
 }

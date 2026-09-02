@@ -54,6 +54,20 @@ export class AuthService {
     }
   }
 
+  static async verifyToken(Token: string) {
+    try {
+      const response = await axios.post(`${apiUrl}/auth/verifyAuthToken`, {
+       token: Token
+      });
+      return response.data;
+    } catch (error) {
+        return { 
+          success: false, 
+          message: 'Token verification failed' 
+        };
+      }
+  }
+
   static async login(loginData: LoginData) {
     try {
       const response = await axios.post(`${apiUrl}/auth/login`, {
@@ -73,9 +87,19 @@ export class AuthService {
     } catch (error) {
       console.error('Login error:', error);
       if (axios.isAxiosError(error) && error.response) {
+        // Handle rate limiting (429)
+        if (error.response.status === 429) {
+          return { 
+            success: false, 
+            message: 'Too many login attempts. Please wait a few minutes before trying again.',
+            statusCode: 429,
+            retryAfter: error.response.headers['retry-after']
+          };
+        }
         return { 
           success: false, 
-          message: error.response.data.message || 'Login failed' 
+          message: error.response.data.message || 'Login failed',
+          statusCode: error.response.status
         };
       }
       return { success: false, message: 'Network error' };

@@ -8,22 +8,50 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
-import { MenuIcon, Bell, X, Car, ShoppingCart} from "lucide-react";
+import { MenuIcon, Bell, X, Car, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import CategoriesList from "./CategoresList";
 import Link from "next/link";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useCart } from "@/src/hooks/useCart";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import { AuthService } from "@/src/services/auth.service";
+import { useEffect } from "react";
+
+type checkTokenResponse = {
+  success: boolean;
+  message: string;
+};
 
 export default function CustomerNavbar() {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, token } = useAuth();
   //get cart items count from hooks
-  const {itemCount} = useCart();
+  const { itemCount } = useCart();
 
   const handleLogout = () => {
     logout();
   };
+
+  useEffect(() => {
+    const checkToken = async () => {
+      if (token && isAuthenticated) {
+        try {
+          const response: checkTokenResponse =
+            await AuthService.verifyToken(token);
+          if (!response.success) {
+            toast.error("Session expired. Please log in again.");
+            setTimeout(() => {
+              logout();
+            }, 3000);
+          }
+        } catch (error) {
+          console.error("Token verification failed", error);
+        }
+      }
+    };
+
+    checkToken();
+  }, [token, isAuthenticated]); // Remove logout from here
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -81,22 +109,25 @@ export default function CustomerNavbar() {
                 <Bell aria-hidden="true" className="size-6" />
               </button>
             )} */}
-              <button
-                type="button"
-                className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden mr-4 mt-1"
-                style={{ backgroundColor: "transparent" }}
-                onClick={() => window.location.href = '/cart'}
-              >
-                <span className="absolute -inset-1.5" />
-                <span className="sr-only">View notifications</span>
+            <button
+              type="button"
+              className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden mr-4 mt-1"
+              style={{ backgroundColor: "transparent" }}
+              onClick={() => (window.location.href = "/cart")}
+            >
+              <span className="absolute -inset-1.5" />
+              <span className="sr-only">View notifications</span>
+              {isAuthenticated && itemCount > 0 && (
                 <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-red-500">
                   <span className="text-white text-xs font-bold flex items-center justify-center h-full">
                     {itemCount}
                   </span>
                 </div>
+              )}
+              {isAuthenticated && (
                 <ShoppingCart aria-hidden="true" className="size-6" />
-              </button>
-            
+              )}
+            </button>
 
             {/* Authentication Section */}
             {isAuthenticated ? (
@@ -211,7 +242,7 @@ export default function CustomerNavbar() {
           )}
         </div>
       </DisclosurePanel>
-      <ToastContainer />
+      <ToastContainer limit={1}/>
     </Disclosure>
   );
 }

@@ -4,6 +4,7 @@ import { NewsletterSection } from '@/src/components/buyer/home/NewsletterSection
 import 'react-toastify/dist/ReactToastify.css';
 import { FeaturedProductsGrid } from '@/src/components/buyer/home/FeaturedProductsGrid';
 import { CategorySelector } from '@/src/components/buyer/home/CategorySelector';
+import { WarningBanner } from '@/src/components/buyer/home/WarningBanner';
 
 
 
@@ -14,9 +15,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
+      <WarningBanner />
       <CustomerNavbar />
       <HomeHero />
-
       <section className="py-12 sm:py-16 lg:py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-8 sm:mb-12">Shop by Category</h2>

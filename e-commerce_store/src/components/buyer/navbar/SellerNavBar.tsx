@@ -9,7 +9,9 @@ import {
   Package,
   Settings,
   ShoppingBasket,
-  MessageCircleMore
+  MessageCircleMore,
+  Folder,
+  FolderOpen
 } from "lucide-react";
 import { useSellerNavbar } from "@/src/hooks/sellerNavBar";
 import Link from "next/link";
@@ -107,6 +109,26 @@ export default function SellerNavbar({
                 <ShoppingBasket />
               </div>
               {isExpanded && <span className="ml-2">Products</span>}
+            </div>
+          </li>
+          </Link>
+          <Link href="/seller/categories">
+          <li className="flex justify-start items-center rounded hover:bg-gray-700 cursor-pointer">
+            <div className="flex-row gap-3 flex items-center p-2 w-full">
+              <div>
+                <Folder />
+              </div>
+              {isExpanded && <span className="ml-2">Categories</span>}
+            </div>
+          </li>
+          </Link>
+          <Link href="/seller/subcategories">
+          <li className="flex justify-start items-center rounded hover:bg-gray-700 cursor-pointer">
+            <div className="flex-row gap-3 flex items-center p-2 w-full">
+              <div>
+                <FolderOpen />
+              </div>
+              {isExpanded && <span className="ml-2">Subcategories</span>}
             </div>
           </li>
           </Link>

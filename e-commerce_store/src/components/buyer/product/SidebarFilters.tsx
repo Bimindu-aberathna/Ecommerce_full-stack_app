@@ -1,8 +1,7 @@
 "use client";
-import React from "react";
-import { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ProductService } from "@/src/services/product.service";
-import type { Category } from "@/src/types";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type category = {
   id: number;
@@ -11,14 +10,37 @@ type category = {
 };
 
 function SidebarFilters() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   //lazy load categories from backend and store
-  const [categories, setCategories] = React.useState<category[]>([]);
-  const [filterCategories, setFilterCategories] = React.useState<category[]>([]);
-  const [brands, setBrands] = React.useState<string[]>([]);
-  const [filterBrands, setFilterBrands] = React.useState<string[]>([]);
+  const [categories, setCategories] = useState<category[]>([]);
+  const [brands, setBrands] = useState<string[]>([]);
+
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [inStock, setInStock] = useState<boolean>(false);
 
   useEffect(() => {
     fetchCategories();
+  }, []);
+
+  // Initialize UI state from current URL
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get("category") || "";
+    const brandsFromUrl = searchParams.getAll("brands");
+    const minPriceFromUrl = searchParams.get("minPrice") || "";
+    const maxPriceFromUrl = searchParams.get("maxPrice") || "";
+    const inStockFromUrl = searchParams.get("inStock") === "true";
+
+    setSelectedCategoryId(categoryFromUrl);
+    setSelectedBrands(brandsFromUrl);
+    setMinPrice(minPriceFromUrl);
+    setMaxPrice(maxPriceFromUrl);
+    setInStock(inStockFromUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCategories = async () => {
@@ -35,30 +57,73 @@ function SidebarFilters() {
   };
 
   useEffect(() => {
-      fetchBrands(); 
-  }, [filterCategories]);
+    fetchBrands();
+    // Reset brands selection when category changes
+    setSelectedBrands([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategoryId]);
 
   const fetchBrands = async () => {
-    console.log("Fetching brands for categories:", filterCategories);
-    let categoryIds = ""
-    if (filterCategories.length > 0) {
-      categoryIds = filterCategories.map((c) => c.id).join(",");
-    }
     try {
-      const res = await ProductService.getBrands(categoryIds);
+      const res = await ProductService.getBrands(selectedCategoryId);
       const brandList = Array.isArray(res.data?.data) ? res.data.data : [];
-      console.log("Fetched brands:", brandList);
       setBrands(brandList);
-      console.log("Fetched brands state:", brands);
     } catch (err) {
       console.log(err);
       setBrands([]);
     }
   };
 
-  const printBrands = () => {
-    console.log("Current brands state:", brands);
-  }
+  const canApply = useMemo(() => {
+    return (
+      !!selectedCategoryId ||
+      selectedBrands.length > 0 ||
+      !!minPrice ||
+      !!maxPrice ||
+      inStock
+    );
+  }, [inStock, maxPrice, minPrice, selectedBrands.length, selectedCategoryId]);
+
+  const applyFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    // Reset pagination when filters change
+    params.delete("page");
+
+    if (selectedCategoryId) params.set("category", selectedCategoryId);
+    else params.delete("category");
+
+    params.delete("brands");
+    selectedBrands.forEach((b) => params.append("brands", b));
+
+    if (minPrice) params.set("minPrice", minPrice);
+    else params.delete("minPrice");
+
+    if (maxPrice) params.set("maxPrice", maxPrice);
+    else params.delete("maxPrice");
+
+    if (inStock) params.set("inStock", "true");
+    else params.delete("inStock");
+
+    router.push(`?${params.toString()}`);
+  };
+
+  const clearFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
+    params.delete("category");
+    params.delete("brands");
+    params.delete("minPrice");
+    params.delete("maxPrice");
+    params.delete("inStock");
+    router.push(`?${params.toString()}`);
+
+    setSelectedCategoryId("");
+    setSelectedBrands([]);
+    setMinPrice("");
+    setMaxPrice("");
+    setInStock(false);
+  };
 
   return (
     <div className="">
@@ -85,15 +150,13 @@ function SidebarFilters() {
               {categories.map((category) => (
                   <label key={category.id} className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="category"
                       className="mr-2"
+                      checked={selectedCategoryId === category.id.toString()}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setFilterCategories([...filterCategories, category]);
-                        } else {
-                          setFilterCategories(
-                            filterCategories.filter((c) => c !== category),
-                          );
+                          setSelectedCategoryId(category.id.toString());
                         }
                       }}
                     />
@@ -119,13 +182,27 @@ function SidebarFilters() {
           <div className="mb-6">
             <h3 className="font-medium mb-3">Price Range</h3>
             <div className="space-y-2">
-              <input type="range" min="0" max="1000" className="w-full" />
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Rs. 0</span>
-                <span>Rs. 100000+</span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  placeholder="Min"
+                  className="w-1/2 rounded border px-3 py-2 text-sm"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  placeholder="Max"
+                  className="w-1/2 rounded border px-3 py-2 text-sm"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
               </div>
             </div>
-            {/* <button onClick={printBrands} className="mt-2 px-3 py-1 bg-gray-200 rounded">Print Brands</button> */}
           </div>
 
           {/* Brand */}
@@ -134,13 +211,55 @@ function SidebarFilters() {
             <div className="space-y-2">
               {brands ? brands.map((brand, index) => (
                 <label key={index} className="flex items-center">
-                  <input type="checkbox" className="mr-2" />
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={selectedBrands.includes(brand)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedBrands((prev) => [...prev, brand]);
+                      } else {
+                        setSelectedBrands((prev) => prev.filter((b) => b !== brand));
+                      }
+                    }}
+                  />
                   {brand}
                 </label>
               )) : (
                 <p>No brands available</p>
               )}
             </div>
+          </div>
+
+          {/* Stock */}
+          <div className="mb-6">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={inStock}
+                onChange={(e) => setInStock(e.target.checked)}
+              />
+              In stock only
+            </label>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={applyFilters}
+              disabled={!canApply}
+              className="w-full rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Filter
+            </button>
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="rounded border px-4 py-2 text-sm font-medium"
+            >
+              Clear
+            </button>
           </div>
         </div>
       </div>

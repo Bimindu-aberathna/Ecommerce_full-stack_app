@@ -15,7 +15,8 @@ const {
 } = require("../middleware/validation");
 const multer = require("multer");
 const router = express.Router();
-const { uploadImage, deleteImage } = require("../Services/FireBaseServicees");
+// const { uploadImage, deleteImage } = require("../Services/FireBaseServicees");
+const { uploadImage, deleteImage } = require("../Services/CloudinaryServices");
 const { name } = require("ejs");
 const Sequelize = require("sequelize");
 
@@ -51,6 +52,12 @@ router.get("/", async (req, res) => {
       inStock,
     } = req.query;
 
+    const brandList = Array.isArray(brands)
+      ? brands
+      : brands
+        ? [brands]
+        : [];
+
     // Build where conditions
     const whereConditions = {};
     const subCategoryWhere = {};
@@ -71,8 +78,8 @@ router.get("/", async (req, res) => {
     }
 
     // Filter by brand
-    if (brands.length > 0) {
-      whereConditions.brand = { [Op.in]: brands };
+    if (brandList.length > 0) {
+      whereConditions.brand = { [Op.in]: brandList };
     }
 
     // Filter by active status
@@ -534,6 +541,192 @@ router.post(
 );
 
 // Update a product
+// router.put(
+//   "/:id",
+//   auth,
+//   adminAuth,
+//   upload.array("images", 10),
+//   updateProductValidation,
+//   handleMultipleDefaultImages,
+//   async (req, res) => {
+//     const transaction = await Product.sequelize.transaction();
+//     console.log("Update product request body:", req.body);
+//     const uploadedImageUrls = [];
+
+//     try {
+//       const product = await Product.findByPk(req.params.id);
+
+//       if (!product) {
+//         await transaction.rollback();
+//         return res.status(404).json({
+//           success: false,
+//           message: "Product not found",
+//         });
+//       }
+
+//       // Delete old images if requested
+//       if (
+//         req.body.replaceImages === "true" &&
+//         product.images &&
+//         product.images.length > 0
+//       ) {
+//         if (Array.isArray(product.images)) {
+//           for (const imageUrl of product.images) {
+//             try {
+//               await deleteImage(imageUrl);
+//             } catch (error) {
+//               console.error(`Failed to delete old image: ${imageUrl}`, error);
+//             }
+//           }
+//         }
+
+//         product.images = [];
+//       }
+
+//       // Upload new images if provided
+//       if (req.files && req.files.length > 0) {
+//         const uploadPromises = req.files.map((file) =>
+//           uploadImage(
+//             file.buffer,
+//             "products",
+//             `${Date.now()}-${file.originalname}`,
+//           ),
+//         );
+
+//         const uploadResults = await Promise.all(uploadPromises);
+
+//         const failures = uploadResults.filter((r) => !r.success);
+//         if (failures.length > 0) {
+//           throw new Error(`Failed to upload ${failures.length} image(s)`);
+//         }
+
+//         uploadResults.forEach((result) => uploadedImageUrls.push(result.url));
+//       }
+
+//       const {
+//         name,
+//         description,
+//         price,
+//         originalPrice,
+//         subCategoryId,
+//         brand,
+//         sku,
+//         tags,
+//         weight,
+//         warranty,
+//         isFeatured,
+//         isActive,
+//         varieties,
+//       } = req.body;
+
+//       // Build update data
+//       const updateData = {};
+//       if (name !== undefined) updateData.name = name;
+//       if (description !== undefined) updateData.description = description;
+//       if (price !== undefined) updateData.price = price;
+//       if (originalPrice !== undefined) updateData.originalPrice = originalPrice;
+//       if (subCategoryId !== undefined) updateData.subCategoryId = subCategoryId;
+//       if (brand !== undefined) updateData.brand = brand;
+//       if (sku !== undefined) updateData.sku = sku;
+//       if (tags !== undefined) updateData.tags = tags;
+//       if (weight !== undefined) updateData.weight = weight;
+//       if (warranty !== undefined) updateData.warranty = warranty;
+//       if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
+//       if (isActive !== undefined) updateData.isActive = isActive;
+
+//       // Handle images
+//       if (uploadedImageUrls.length > 0) {
+//         if (req.body.replaceImages === "true") {
+//           updateData.images = uploadedImageUrls;
+//         } else {
+//           // Append to existing images
+//           updateData.images = [...(product.images || []), ...uploadedImageUrls];
+//         }
+//       } else if (req.body.images !== undefined) {
+//         updateData.images = req.body;
+//       }
+
+//       await product.update(updateData, { transaction });
+
+//       // Update varieties if provided
+//       if (varieties) {
+//         // Delete existing varieties
+//         await ProductVariety.destroy({
+//           where: { productId: product.id },
+//           transaction,
+//         });
+
+//         // Create new varieties
+//         if (varieties.length > 0) {
+//           const varietyData = varieties.map((variety) => ({
+//             ...variety,
+//             productId: product.id,
+//           }));
+
+//           await ProductVariety.bulkCreate(varietyData, { transaction });
+//         }
+//       }
+
+//       await transaction.commit();
+
+//       // Fetch the updated product with all associations
+//       const updatedProduct = await Product.findByPk(product.id, {
+//         include: [
+//           {
+//             model: ProductVariety,
+//             as: "varieties",
+//           },
+//           {
+//             model: SubCategory,
+//             as: "subCategory",
+//             include: [{ model: Category, as: "category" }],
+//           },
+//           {
+//             model: User,
+//             as: "createdBy",
+//             attributes: ["id", "firstName", "lastName"],
+//           },
+//         ],
+//       });
+
+//       res.json({
+//         success: true,
+//         message: "Product updated successfully",
+//         data: updatedProduct,
+//       });
+//     } catch (error) {
+//       await transaction.rollback();
+//       console.error("Update product error:", error);
+
+//       // Handle Sequelize validation errors
+//       if (error.name === "SequelizeValidationError") {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Validation failed",
+//           errors: error.errors.map((err) => ({
+//             field: err.path,
+//             message: err.message,
+//           })),
+//         });
+//       }
+
+//       // Handle unique constraint errors
+//       if (error.name === "SequelizeUniqueConstraintError") {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Product with this SKU already exists",
+//         });
+//       }
+
+//       res.status(500).json({
+//         success: false,
+//         message: "Failed to update product",
+//         error:
+//           process.env.NODE_ENV === "development" ? error.message : undefined,
+//       });
+//     }
+//   },
+// );
 router.put(
   "/:id",
   auth,
@@ -557,12 +750,11 @@ router.put(
         });
       }
 
+      
+      const shouldReplaceImages = String(req.body.replaceImages) === "true";
+
       // Delete old images if requested
-      if (
-        req.body.replaceImages === "true" &&
-        product.images &&
-        product.images.length > 0
-      ) {
+      if (shouldReplaceImages && product.images && product.images.length > 0) {
         if (Array.isArray(product.images)) {
           for (const imageUrl of product.images) {
             try {
@@ -572,7 +764,6 @@ router.put(
             }
           }
         }
-
         product.images = [];
       }
 
@@ -582,8 +773,8 @@ router.put(
           uploadImage(
             file.buffer,
             "products",
-            `${Date.now()}-${file.originalname}`,
-          ),
+            `${Date.now()}-${file.originalname}`
+          )
         );
 
         const uploadResults = await Promise.all(uploadPromises);
@@ -627,16 +818,38 @@ router.put(
       if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
       if (isActive !== undefined) updateData.isActive = isActive;
 
-      // Handle images
-      if (uploadedImageUrls.length > 0) {
-        if (req.body.replaceImages === "true") {
+     if (uploadedImageUrls.length > 0) {
+        if (shouldReplaceImages) {
           updateData.images = uploadedImageUrls;
         } else {
-          // Append to existing images
-          updateData.images = [...(product.images || []), ...uploadedImageUrls];
+          let currentDbImages = product.images || [];
+          
+          if (typeof currentDbImages === "string") {
+            try {
+              currentDbImages = JSON.parse(currentDbImages);
+            } catch (e) {
+              currentDbImages = []; 
+            }
+          }
+
+          updateData.images = [...currentDbImages, ...uploadedImageUrls];
         }
       } else if (req.body.images !== undefined) {
-        updateData.images = req.body;
+        
+        let existingImages = req.body.images;
+        
+        // Handle multipart/form-data stringified arrays
+        if (typeof existingImages === "string") {
+          try {
+            existingImages = JSON.parse(existingImages);
+          } catch (e) {
+            existingImages = [existingImages]; 
+          }
+        }
+        updateData.images = existingImages;
+      } else if (shouldReplaceImages) {
+        
+        updateData.images = [];
       }
 
       await product.update(updateData, { transaction });
@@ -651,18 +864,30 @@ router.put(
 
         // Create new varieties
         if (varieties.length > 0) {
-          const varietyData = varieties.map((variety) => ({
-            ...variety,
-            productId: product.id,
-          }));
+          
+          let parsedVarieties = varieties;
+          if (typeof varieties === "string") {
+            try {
+              parsedVarieties = JSON.parse(varieties);
+            } catch (e) {
+              console.error("Failed to parse varieties:", e);
+              parsedVarieties = [];
+            }
+          }
 
-          await ProductVariety.bulkCreate(varietyData, { transaction });
+          if (Array.isArray(parsedVarieties)) {
+            const varietyData = parsedVarieties.map((variety) => ({
+              ...variety,
+              productId: product.id,
+            }));
+            await ProductVariety.bulkCreate(varietyData, { transaction });
+          }
         }
       }
 
       await transaction.commit();
 
-      // Fetch the updated product with all associations
+      
       const updatedProduct = await Product.findByPk(product.id, {
         include: [
           {
@@ -691,7 +916,7 @@ router.put(
       await transaction.rollback();
       console.error("Update product error:", error);
 
-      // Handle Sequelize validation errors
+      
       if (error.name === "SequelizeValidationError") {
         return res.status(400).json({
           success: false,
@@ -703,7 +928,7 @@ router.put(
         });
       }
 
-      // Handle unique constraint errors
+      
       if (error.name === "SequelizeUniqueConstraintError") {
         return res.status(400).json({
           success: false,
@@ -718,7 +943,7 @@ router.put(
           process.env.NODE_ENV === "development" ? error.message : undefined,
       });
     }
-  },
+  }
 );
 
 router.get("/seller/lowStock", auth, adminAuth, async (req, res) => {
@@ -1054,8 +1279,7 @@ router.get("/search/suggestions", async (req, res) => {
   }
 });
 
-// ===== NEW ROUTE: Upload product images =====
-// POST /api/products/upload-images
+
 // Upload one or multiple images at once
 router.post(
   "/upload-images",

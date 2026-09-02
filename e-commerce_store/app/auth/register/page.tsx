@@ -50,6 +50,7 @@ export default function RegisterPage() {
     if (response && response.success) {
       toast.success(response.message);
       // Redirect to login page after successful registration
+      
       router.push('/auth/login');
     } else {
       toast.error(response?.message || "Registration failed");

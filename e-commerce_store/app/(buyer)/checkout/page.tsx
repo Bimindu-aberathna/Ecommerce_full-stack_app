@@ -124,8 +124,8 @@ const PaymentForm = () => {
           amount: totalAmount * 100,
           currency: "lkr",
           cartId: cartId,
-          deliveryInfo: deliveryInfo, // ✅ Fixed: removed { deliveryInfo }
-          metadata: deliveryInfo, // ✅ Fixed: removed nested deliveryInfo
+          deliveryInfo: deliveryInfo, 
+          metadata: deliveryInfo, 
         },
         {
           headers: {
@@ -150,10 +150,10 @@ const PaymentForm = () => {
           card: cardElement!,
           billing_details: {
             name: "Customer",
-            email: deliveryInfo.email || "customer@example.com", // ✅ Fixed: use deliveryInfo.email
+            email: deliveryInfo.email || "customer@example.com", 
             address: {
-              line1: deliveryInfo.address, // ✅ Fixed: use deliveryInfo.address
-              postal_code: deliveryInfo.postalCode, // ✅ Fixed: use deliveryInfo.postalCode
+              line1: deliveryInfo.address, 
+              postal_code: deliveryInfo.postalCode, 
             },
           },
         },
@@ -168,7 +168,7 @@ const PaymentForm = () => {
           `${process.env.NEXT_PUBLIC_API_URL}/payments/complete`,
           {
             paymentIntentId: result.paymentIntent.id,
-            delivery_Info: deliveryInfo, // ✅ Fixed: removed { deliveryInfo }
+            delivery_Info: deliveryInfo,
           },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -263,17 +263,17 @@ const PaymentForm = () => {
             <div className="space-y-3 sm:space-y-4">
               <div className="flex justify-between items-center py-2 sm:py-3 border-b" style={{ color: 'var(--secondary)' }}>
                 <span className="text-xs sm:text-sm">Subtotal</span>
-                <span className="font-semibold text-sm sm:text-base">${amount.toFixed(2)}</span>
+                <span className="font-semibold text-sm sm:text-base">Rs.{amount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center py-2 sm:py-3 border-b" style={{ color: 'var(--secondary)' }}>
                 <span className="text-xs sm:text-sm">Shipping</span>
                 <span className="font-semibold text-sm sm:text-base">
-                  {shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}
+                  {shippingCost === 0 ? "Free" : `Rs.${shippingCost.toFixed(2)}`}
                 </span>
               </div>
               <div className="flex justify-between items-center py-3 sm:py-4 text-base sm:text-lg font-bold" style={{ color: 'var(--text)' }}>
                 <span>Total</span>
-                <span style={{ color: 'var(--primary)' }}>${totalAmount.toFixed(2)}</span>
+                <span style={{ color: 'var(--primary)' }}>Rs.{totalAmount.toFixed(2)}</span>
               </div>
             </div>
 

@@ -2,6 +2,21 @@ import axios from "axios";
 import { fetchOrdersObj } from "../types";
 
 export class OrderService {
+  static async fetchUserOrders(token: string) {
+    if (!token) {
+      throw new Error("Missing authentication token");
+    }
+
+    const response = await axios.get("/api/cart/orders", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  }
+
   // Fetch orders
   static async fetchOrders({
     isAuthenticated,

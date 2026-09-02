@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export function HomeHero() {
   return (
@@ -8,15 +8,22 @@ export function HomeHero() {
           Welcome to E-Store
         </h1>
         <p className="text-base sm:text-lg lg:text-xl xl:text-2xl mb-6 sm:mb-8 max-w-2xl mx-auto">
-          Discover amazing products at unbeatable prices. Shop with confidence and enjoy fast, free shipping.
+          Discover amazing products at unbeatable prices. Shop with confidence
+          and enjoy fast, free shipping.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-          <button 
-            className="bg-white text-blue-600 px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition text-sm sm:text-base"
-            onClick={() => window.location.href = '/products'}
-          >
-            Shop Now
-          </button>
+          <div className="relative inline-block">
+            <span
+              className="absolute inset-0 rounded-lg bg-white opacity-75 animate-ping motion-reduce:animate-none"
+              aria-hidden="true"
+            ></span>
+            <button
+              className="relative bg-white text-blue-600 px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold shadow-lg hover:bg-gray-100 transition text-sm sm:text-base"
+              onClick={() => (window.location.href = "/products")}
+            >
+              Shop Now
+            </button>
+          </div>
           <button className="border border-white text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition text-sm sm:text-base">
             Learn More
           </button>

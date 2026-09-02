@@ -189,4 +189,16 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
-module.exports = { auth, adminAuth, optionalAuth };
+const verifyAuthToken = (token) => {
+  try {
+    result = jwt.verify(token, process.env.JWT_SECRET);
+    if (result && result.id) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    return false;
+  }
+};
+    
+module.exports = { auth, adminAuth, optionalAuth , verifyAuthToken };

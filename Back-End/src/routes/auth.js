@@ -6,13 +6,14 @@ const { auth } = require('../middleware/auth');
 const { registerValidation, loginValidation } = require('../middleware/validation');
 const { sendPasswordResetEmail, sendWelcomeEmail } = require('../Services/Email/emailService');
 const bcrypt = require('bcryptjs/dist/bcrypt');
+const { verifyAuthToken } = require('../middleware/auth');
 
 const router = express.Router();
 
 // Generate JWT token
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    expiresIn: process.env.JWT_EXPIRES_IN || '5h',
   });
 };
 
@@ -323,9 +324,7 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/verify-reset-token
-// @desc    Verify if reset token is valid (for frontend validation)
-// @access  Public
+
 router.post('/verify-reset-token', async (req, res) => {
   try {
     const { token } = req.body;
@@ -365,6 +364,32 @@ router.post('/verify-reset-token', async (req, res) => {
 
   } catch (error) {
     console.error('Verify reset token error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.',
+      error: error.message,
+    });
+  }
+});
+
+
+router.post('/verifyAuthToken',async (req, res) => {
+  try {
+    const { token } = req.body;
+    const validity = verifyAuthToken(token);
+    if (validity) {
+      return res.json({
+        success: true,
+        message: 'Token is valid',
+      });
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: 'Token is invalid or expired',
+      });
+    }
+  } catch (error) {
+    console.error('Verify auth token error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.',

@@ -519,6 +519,50 @@ router.delete("/:cartId", auth, async (req, res) => {
   }
 });
 
+//Get orders for the user
+router.get("/orders", auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const orders = await Order.findAll({
+      where: { userId },
+      include: [
+        {
+          model: OrderItem,
+          as: "items",
+          include: [
+            {
+              model: ProductVariety,
+              as: "productVariety",
+              attributes: ["id", "name"],
+              include: [
+                {
+                  model: Product,
+                  as: "product",
+                  attributes: ["id", "name"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Orders fetched successfully",
+      data: {
+        orders,
+      },
+    });
+  } catch (error) {
+    console.error("Get orders error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching orders",
+    });
+  }
+});
+
 //check product availability
 router.get("/availability/:cartId", auth, async (req, res) => {
   const userId = req.user.id;
@@ -590,7 +634,7 @@ router.get("/availability/:cartId", auth, async (req, res) => {
   }
 });
 
-//get orders for the seller (single vendor - show ALL orders)
+//get orders for the seller 
 router.get("/seller/orders/:bool", adminAuth, async (req, res) => {
   try {
     // if bool is false, get all orders, else get only unviewed orders

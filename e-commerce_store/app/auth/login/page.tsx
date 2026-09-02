@@ -8,13 +8,15 @@ import { useEffect, useMemo, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
 export default function LoginPage() {
-  const { login, loading, isAuthenticated, user } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { getCartCount } = useCart();
+  const [loading, setLoading] = useState(false);
+  const [rateLimitCountdown, setRateLimitCountdown] = useState(0);
 
   const nextUrl = useMemo(() => searchParams.get("next"), [searchParams]);
 
@@ -29,6 +31,15 @@ export default function LoginPage() {
     router.replace(redirectTo);
   }, [isAuthenticated, user, nextUrl, router]);
 
+  // Rate limit countdown timer
+  useEffect(() => {
+    if (rateLimitCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setRateLimitCountdown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [rateLimitCountdown]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
@@ -37,6 +48,7 @@ export default function LoginPage() {
     }
 
     const loginData = { email, password };
+    setLoading(true);
 
     try {
       const response = await login(loginData);
@@ -61,13 +73,22 @@ export default function LoginPage() {
         const redirectTo = nextUrl || getDefaultRoute(userRole);
         router.replace(redirectTo);
       } else {
-        toast.error(response?.message || "Login failed");
+        // Handle rate limiting
+        if (response.statusCode === 429) {
+          // Extract retry-after header (default to 60 seconds)
+          const retryAfter = response.retryAfter ? parseInt(response.retryAfter) : 60;
+          setRateLimitCountdown(retryAfter);
+          toast.error(response?.message || "Too many login attempts. Please wait before trying again.");
+        } else {
+          toast.error(response?.message || "Login failed");
+        }
       }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An error occurred";
       toast.error(errorMessage);
     }
+    setLoading(false);
   };
 
   return (

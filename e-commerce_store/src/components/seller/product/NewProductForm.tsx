@@ -213,236 +213,360 @@ function NewProduct() {
 
   return (
     <>
-      <div className="">
-        <div className="flex items-center gap-4 border-b border-gray-200 px-6 py-4">
-          <div className="text-lg font-bold">Add New Product</div>
+      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        {/* Header */}
+        <div className="px-6 py-4">
+          <div className="flex items-center gap-2">
+            <FolderPen className="h-5 w-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Product Information
+            </h2>
+          </div>
         </div>
+
+        {/* Form */}
         <div className="px-6 py-5">
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="price"
-                  className="block text-sm dark:text-gray-400 mb-1.5"
-                >
-                 Category
-                </label>
-                {/* //category select dropdown */}
-                <select
-                  disabled = {categories.length === 0}
-                  value={selectedCategory || ""}
-                  onChange={(e) =>
-                    setSelectedCategory(Number(e.target.value) || null)
-                  }
-                  className="block w-full h-10 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  {categories && categories.map((category) => (
-                    <option key={category.id} value={category.id} className="text-gray-900 mb-1">
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                
-              </div>
-              <div>
-                <label
-                  htmlFor="originalPrice"
-                  className="block text-sm dark:text-gray-400 mb-1.5"
-                >
-                  Sub-Category
-                </label>
-                <select
-                  disabled = {categories.length === 0}
-                  value={selectedSubCategory || ""}
-                  onChange={(e) =>
-                    setSelectedSubCategory(Number(e.target.value) || null)
-                  }
-                  className="block w-full h-10 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  {selectedCategory && 
-                    categories.find(c => c.id === selectedCategory)?.subCategories.map(sub => (
-                      <option key={sub.id} value={sub.id} className="text-gray-900 mb-1">
-                        {sub.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm dark:text-gray-400 mb-1.5"
-              >
-                Product Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={newProduct.name}
-                onChange={handleFieldChange}
-                className="block w-full h-10 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="description"
-                className="block text-sm dark:text-gray-400 mb-1.5"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                rows={4}
-                value={newProduct.description}
-                onChange={handleFieldChange}
-                className="block w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="price"
-                  className="block text-sm dark:text-gray-400 mb-1.5"
-                >
-                  Price
-                </label>
-                <input
-                  type="number"
-                  id="price"
-                  name="price"
-                  value={newProduct.price}
-                  onChange={handleFieldChange}
-                  className="block w-full h-10 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="originalPrice"
-                  className="block text-sm dark:text-gray-400 mb-1.5"
-                >
-                  Original Price
-                </label>
-                <input
-                  type="number"
-                  id="originalPrice"
-                  name="originalPrice"
-                  value={newProduct.originalPrice}
-                  onChange={handleFieldChange}
-                  className="block w-full h-10 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Category Section */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide text-gray-700 dark:text-gray-300">
+                Categories
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="category"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Category
+                  </label>
+                  <select
+                    id="category"
+                    disabled={categories.length === 0}
+                    value={selectedCategory || ""}
+                    onChange={(e) =>
+                      setSelectedCategory(Number(e.target.value) || null)
+                    }
+                    className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:disabled:bg-gray-800 transition"
+                  >
+                    <option value="">Select a category</option>
+                    {categories &&
+                      categories.map((category) => (
+                        <option
+                          key={category.id}
+                          value={category.id}
+                          className="text-gray-900 dark:text-gray-100"
+                        >
+                          {category.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="subCategory"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Sub-Category
+                  </label>
+                  <select
+                    id="subCategory"
+                    disabled={categories.length === 0}
+                    value={selectedSubCategory || ""}
+                    onChange={(e) =>
+                      setSelectedSubCategory(Number(e.target.value) || null)
+                    }
+                    className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:disabled:bg-gray-800 transition"
+                  >
+                    <option value="">Select a sub-category</option>
+                    {selectedCategory &&
+                      categories
+                        .find((c) => c.id === selectedCategory)
+                        ?.subCategories.map((sub) => (
+                          <option
+                            key={sub.id}
+                            value={sub.id}
+                            className="text-gray-900 dark:text-gray-100"
+                          >
+                            {sub.name}
+                          </option>
+                        ))}
+                  </select>
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            {/* Basic Product Info */}
+            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                Basic Information
+              </h3>
               <div>
                 <label
-                  htmlFor="brand"
-                  className="block text-sm dark:text-gray-400 mb-1.5"
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
                 >
-                  Brand
+                  Product Name
                 </label>
                 <input
                   type="text"
-                  id="brand"
-                  name="brand"
-                  value={newProduct.brand}
+                  id="name"
+                  name="name"
+                  required
+                  value={newProduct.name}
                   onChange={handleFieldChange}
-                  className="block w-full h-10 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 transition"
+                  placeholder="Enter product name"
                 />
               </div>
               <div>
                 <label
-                  htmlFor="sku"
-                  className="block text-sm dark:text-gray-400 mb-1.5"
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
                 >
-                  SKU
+                  Description
                 </label>
-                <input
-                  type="text"
-                  id="sku"
-                  name="sku"
-                  value={newProduct.sku}
+                <textarea
+                  id="description"
+                  name="description"
+                  rows={4}
+                  required
+                  value={newProduct.description}
                   onChange={handleFieldChange}
-                  className="block w-full h-10 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 transition"
+                  placeholder="Enter product description"
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="weight"
-                  className="block text-sm dark:text-gray-400 mb-1.5"
-                >
-                  Weight
-                </label>
-                <input
-                  type="text"
-                  id="weight"
-                  name="weight"
-                  value={newProduct.weight}
-                  onChange={handleFieldChange}
-                  className="block w-full h-10 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+
+            {/* Pricing */}
+            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                Pricing
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="price"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Sale Price
+                  </label>
+                  <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    required
+                    step="0.01"
+                    value={newProduct.price}
+                    onChange={handleFieldChange}
+                    className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 transition"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="originalPrice"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Original Price
+                  </label>
+                  <input
+                    type="number"
+                    id="originalPrice"
+                    name="originalPrice"
+                    required
+                    step="0.01"
+                    value={newProduct.originalPrice}
+                    onChange={handleFieldChange}
+                    className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 transition"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Product Details */}
+            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                Product Details
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="brand"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Brand
+                  </label>
+                  <input
+                    type="text"
+                    id="brand"
+                    name="brand"
+                    required
+                    value={newProduct.brand}
+                    onChange={handleFieldChange}
+                    className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 transition"
+                    placeholder="Enter brand name"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="sku"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    SKU
+                  </label>
+                  <input
+                    type="text"
+                    id="sku"
+                    name="sku"
+                    required
+                    value={newProduct.sku}
+                    onChange={handleFieldChange}
+                    className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 transition"
+                    placeholder="Enter SKU"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="weight"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    id="weight"
+                    name="weight"
+                    step="0.01"
+                    value={newProduct.weight}
+                    onChange={handleFieldChange}
+                    className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 transition"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="warranty"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Warranty
+                  </label>
+                  <input
+                    type="text"
+                    id="warranty"
+                    name="warranty"
+                    value={newProduct.warranty}
+                    onChange={handleFieldChange}
+                    className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 transition"
+                    placeholder="e.g., 1 year manufacturer warranty"
+                  />
+                </div>
               </div>
               <div>
                 <label
-                  htmlFor="warranty"
-                  className="block text-sm dark:text-gray-400 mb-1.5"
+                  htmlFor="tags"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
                 >
-                  Warranty
+                  Tags (comma separated)
                 </label>
                 <input
                   type="text"
-                  id="warranty"
-                  name="warranty"
-                  value={newProduct.warranty}
-                  onChange={handleFieldChange}
-                  className="block w-full h-10 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  id="tags"
+                  name="tags"
+                  value={newProduct.tags.join(", ")}
+                  onChange={handleTagsChange}
+                  className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 transition"
+                  placeholder="smartphone, 5G, camera, electronics"
                 />
               </div>
             </div>
-            <div>
-              <label
-                htmlFor="tags"
-                className="block text-sm dark:text-gray-400 mb-1.5"
-              >
-                Tags (comma separated)
-              </label>
-              <input
-                type="text"
-                id="tags"
-                name="tags"
-                value={newProduct.tags.join(", ")}
-                onChange={handleTagsChange}
-                className="block w-full h-10 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+
+            {/* Varieties */}
+            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                Varieties & Stock
+              </h3>
+              <NewVarietiesEditor
+                varieties={newProduct.varieties}
+                onChange={(varieties) =>
+                  setNewProduct((prev) => ({ ...prev, varieties }))
+                }
               />
             </div>
-            <NewVarietiesEditor
-              varieties={newProduct.varieties}
-              onChange={(varieties) =>
-                setNewProduct((prev) => ({ ...prev, varieties }))
-              }
-            />
-            <div className="space-y-2">
-              <label className="block text-sm dark:text-gray-400 mb-1.5">
-                New Images
-              </label>
-              <FilePond
-                files={imageFiles}
-                onupdatefiles={setImageFiles}
-                allowMultiple={true}
-                maxFiles={10}
-                acceptedFileTypes={["image/*"]}
-                labelIdle='Drag & Drop images or <span class="filepond--label-action">Browse</span>'
-              />
+
+            {/* Images */}
+            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                Product Images
+              </h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Upload Images (max 10)
+                </label>
+                <div className="filepond-container">
+                  <FilePond
+                    files={imageFiles}
+                    onupdatefiles={setImageFiles}
+                    allowMultiple={true}
+                    maxFiles={10}
+                    acceptedFileTypes={["image/*"]}
+                    labelIdle='Drag & Drop images or <span class="filepond--label-action">Browse</span>'
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex justify-end pt-2 border-t border-gray-200 dark:border-gray-700">
+
+            {/* Status Options */}
+            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                Status
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    name="isActive"
+                    checked={newProduct.isActive}
+                    onChange={handleToggleChange}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                  />
+                  <label
+                    htmlFor="isActive"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Active Product
+                  </label>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="isFeatured"
+                    name="isFeatured"
+                    checked={newProduct.isFeatured}
+                    onChange={handleToggleChange}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                  />
+                  <label
+                    htmlFor="isFeatured"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Featured Product
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
               <button
                 type="submit"
-                className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition"
               >
-                Save Changes
+                <FolderPen className="h-4 w-4" />
+                Create Product
               </button>
             </div>
           </form>
