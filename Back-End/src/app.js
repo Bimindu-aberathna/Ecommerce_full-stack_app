@@ -46,6 +46,8 @@ const rateLimitDisabled =
   process.env.NODE_ENV === 'test';
 
 if (!rateLimitDisabled) {
+  app.set('trust proxy', 1); 
+  
   const apiLimiter = rateLimit({
     windowMs: rateLimitWindowMs,
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
@@ -110,6 +112,7 @@ app.use('*', (req, res) => {
     message: 'API endpoint not found',
   });
 });
+
 
 const PORT = process.env.PORT || 3000;
 
