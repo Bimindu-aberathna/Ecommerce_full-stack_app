@@ -18,6 +18,24 @@ interface LoginData {
   password: string;
 }
 
+const getApiErrorMessage = (data: unknown, fallback: string) => {
+  if (!data || typeof data !== "object") return fallback;
+
+  const errorData = data as {
+    message?: unknown;
+    errors?: Array<{ msg?: unknown }>;
+  };
+  const validationMessage = errorData.errors?.find(
+    (error) => typeof error?.msg === "string" && error.msg.trim().length > 0
+  )?.msg;
+
+  return typeof validationMessage === "string"
+    ? validationMessage
+    : typeof errorData.message === "string"
+      ? errorData.message
+      : fallback;
+};
+
 export class AuthService {
   static async register(userData: UserData) {
     try {
@@ -37,19 +55,17 @@ export class AuthService {
         return { success: false, message: 'Registration failed' };
       }
     } catch (error) {
-      console.error('Registration error:', error);
       if (axios.isAxiosError(error) && error.response) {
-        if (error.response.data.errors && error.response.data.errors.length > 0) {
-          return { 
-            success: false, 
-            message: error.response.data.errors[0].msg || 'Registration failed' 
-          };
-        }
+        console.error('Registration error:', {
+          status: error.response.status,
+          data: error.response.data,
+        });
         return { 
           success: false, 
-          message: error.response.data.message || 'Registration failed' 
+          message: getApiErrorMessage(error.response.data, 'Registration failed')
         };
       }
+      console.error('Registration error:', error);
       return { success: false, message: 'Network error' };
     }
   }

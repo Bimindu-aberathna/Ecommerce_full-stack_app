@@ -5,8 +5,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
+import { useAppDispatch } from "@/src/store";
+import { stopAuthLoading} from "@/src/store";
 
 export default function RegisterPage() {
+  const dispatch = useAppDispatch();
   const { register, loading, isAuthenticated, user } = useAuth();
   const [userData, setUserData] = useState({
     firstName: "",
@@ -18,6 +21,12 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
+
+  useEffect(() => {
+    if(loading) {
+      dispatch(stopAuthLoading());
+    }
+  }, []);
 
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const router = useRouter();
@@ -55,6 +64,7 @@ export default function RegisterPage() {
     } else {
       toast.error(response?.message || "Registration failed");
     }
+    dispatch(stopAuthLoading());
   };
 
   return (
@@ -98,6 +108,7 @@ export default function RegisterPage() {
                     id="firstName"
                     name="firstName"
                     type="text"
+                    placeholder="John"
                     required
                     autoComplete="given-name"
                     className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
@@ -122,6 +133,7 @@ export default function RegisterPage() {
                     id="lastName"
                     name="lastName"
                     type="text"
+                    placeholder="Doe"
                     required
                     autoComplete="family-name"
                     className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
@@ -147,6 +159,7 @@ export default function RegisterPage() {
                   id="email"
                   name="email"
                   type="email"
+                  placeholder="john.doe@example.com"
                   required
                   autoComplete="email"
                   className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
@@ -171,6 +184,7 @@ export default function RegisterPage() {
                   id="mobile"
                   name="mobile"
                   type="tel"
+                  placeholder="0776210358"
                   required
                   autoComplete="tel"
                   className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
@@ -195,6 +209,7 @@ export default function RegisterPage() {
                   id="address"
                   name="address"
                   type="text"
+                  placeholder="123 Main St"
                   required
                   autoComplete="address"
                   className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
@@ -219,6 +234,7 @@ export default function RegisterPage() {
                   id="postalCode"
                   name="postalCode"
                   type="text"
+                  placeholder="10400"
                   required
                   autoComplete="postal-code"
                   className="block w-full rounded-md bg-input-bg px-3 py-1.5 text-base text-text-primary outline-1 -outline-offset-1 outline-border placeholder:text-input-placeholder focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"

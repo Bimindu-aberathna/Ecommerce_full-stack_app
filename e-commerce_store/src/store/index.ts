@@ -100,6 +100,9 @@ const authSlice = createSlice({
       state.token = null;
       state.error = action.payload;
     },
+    stopAuthLoading: (state) => {
+      state.loading = false;
+    },
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
@@ -212,6 +215,7 @@ export const {
   loginStart, 
   loginSuccess, 
   loginFailure, 
+  stopAuthLoading,
   logout, 
   clearError, 
   updateUser 

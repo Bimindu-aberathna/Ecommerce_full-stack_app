@@ -68,11 +68,15 @@ const handleMultipleDefaultImages = (req, res, next) => {
 
 const registerValidation = [
   body('firstName')
+    .notEmpty()
+    .withMessage('First name is required')
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('First name must be between 2 and 50 characters'),
   
   body('lastName')
+    .notEmpty()
+    .withMessage('Last name is required')
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('Last name must be between 2 and 50 characters'),
@@ -87,6 +91,33 @@ const registerValidation = [
     .withMessage('Password must be at least 6 characters long')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
     .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+
+  body('phone')
+    .notEmpty()
+    .withMessage('Phone number is required')
+    .bail()
+    .trim()
+    .matches(/^(?:\+94|94|0)?7[0125678]\d{7}$/)
+    .withMessage('Please provide a valid phone number'),
+
+  body('postalCode')
+    .notEmpty()
+    .withMessage('Postal code is required')
+    .bail()
+    .trim()
+    .matches(/^\d{5}$/)
+    .withMessage('Enter a valid postal code'),
+
+  body('address')
+    .optional({ values: 'falsy' })
+    .trim()
+    .isLength({ min: 5, max: 255 })
+    .withMessage('Address must be between 5 and 255 characters'),
+
+  body('avatar')
+    .optional({ values: 'falsy' })
+    .isURL()
+    .withMessage('Avatar must be a valid URL'),
   
   handleValidationErrors,
 ];

@@ -1,8 +1,8 @@
 "use client";
 import { useAuth } from "@/src/hooks/useAuth";
 import { ShoppingBag } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import React, { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { addToCart } from "@/src/services/cart.service";
 import { addToCartObj } from "@/src/types";
 import { useCart } from "@/src/hooks/useCart";
@@ -52,6 +52,8 @@ function AddToCartButton({
 }) {
   const [varietyAvailability, setVarietyAvailability] =
     useState<boolean>(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const isAddRequestInFlight = useRef(false);
 
     const { incrementCartCount } = useCart();
 
@@ -68,7 +70,18 @@ function AddToCartButton({
   const { isAuthenticated, token} = useAuth();
 
   const handleAddToCart = async() => {
-    if (selectedVarietyId && varietyAvailability) {
+    if (
+      !selectedVarietyId ||
+      !varietyAvailability ||
+      isAddRequestInFlight.current
+    ) {
+      return;
+    }
+
+    isAddRequestInFlight.current = true;
+    setIsAdding(true);
+
+    {
       const addToCartData: addToCartObj = {
         isAuthenticated,
         token,
@@ -85,6 +98,9 @@ function AddToCartButton({
         }
       } catch (error) {
         console.error('Error adding to cart:', error);
+      } finally {
+        isAddRequestInFlight.current = false;
+        setIsAdding(false);
       }
     }
   };
@@ -92,8 +108,10 @@ function AddToCartButton({
   return (
     <section>
       <button
+        type="button"
         className="w-full !bg-green-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={
+          isAdding ||
           selectedVarietyId === null ||
           !product.isAvailable ||
           product.totalStock === 0 ||
@@ -118,10 +136,9 @@ function AddToCartButton({
         {selectedVarietyId === null
           ? "Select a variant"
           : product.isAvailable && product.totalStock && varietyAvailability
-          ? "Add to Cart"
+          ? isAdding ? "Adding..." : "Add to Cart"
           : "Out of Stock"}
       </button>
-      <ToastContainer />
     </section>
   );
 }

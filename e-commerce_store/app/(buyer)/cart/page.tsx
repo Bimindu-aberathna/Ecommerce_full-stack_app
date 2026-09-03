@@ -12,7 +12,7 @@ import profileService from "@/src/services/profile.service";
 import { ClipboardX, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast} from "react-toastify";
 
 interface cartItem {
   id: string;
@@ -307,7 +307,7 @@ function CartPage() {
           </div>
         )}
       </div>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
     </div>
   );
 }

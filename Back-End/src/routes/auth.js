@@ -61,11 +61,17 @@ router.post('/register', registerValidation, async (req, res) => {
       },
     });
   } catch (error) {
+    
     console.error('Registration error:', error);
-    res.status(500).json({
+    let message = 'Registration failed';
+    if (error.name === 'SequelizeValidationError' && Array.isArray(error.errors)) {
+      message = error.errors.map(e => e.message).join(', ');
+    }
+    res.status(error.name === 'SequelizeValidationError' ? 400 : 500).json({
       success: false,
-      message: 'Registration failed',
+      message,
       error: error.message,
+      
     });
   }
 });

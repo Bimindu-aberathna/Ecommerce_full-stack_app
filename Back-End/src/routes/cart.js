@@ -171,14 +171,21 @@ router.get("/", auth, async (req, res) => {
 
 // Add item to cart
 router.post("/add", auth, async (req, res) => {
-  const transaction = await sequelize.transaction();
+  let transaction;
 
   try {
-    const { productVarietyId, quantity = 1 } = req.body;
+    transaction = await sequelize.transaction();
+    const productVarietyId = Number(req.body.productVarietyId);
+    const quantity = Number(req.body.quantity ?? 1);
     const userId = req.user.id;
 
     // Validate input
-    if (!productVarietyId || quantity <= 0 || !Number.isInteger(quantity)) {
+    if (
+      !Number.isInteger(productVarietyId) ||
+      productVarietyId <= 0 ||
+      !Number.isInteger(quantity) ||
+      quantity <= 0
+    ) {
       await transaction.rollback();
       return res.status(400).json({
         success: false,
@@ -207,47 +214,42 @@ router.post("/add", auth, async (req, res) => {
       });
     }
 
-    // Calculate total quantity already in pending carts
-    const totalInCarts =
-      (await CartItem.sum("quantity", {
-        where: { productVarietyId },
-        include: [
-          {
-            model: Cart,
-            as: "cart",
-            where: { status: "pending" },
+    // Get pending cart IDs separately so MySQL strict aggregate mode is supported.
+    const pendingCarts = await Cart.findAll({
+      attributes: ["id"],
+      where: { status: "pending" },
+      transaction,
+    });
+    const pendingCartIds = pendingCarts.map((pendingCart) => pendingCart.id);
+    const totalInCarts = pendingCartIds.length
+      ? (await CartItem.sum("quantity", {
+          where: {
+            productVarietyId,
+            cartId: { [Op.in]: pendingCartIds },
           },
-        ],
-        transaction,
-      })) || 0;
+          transaction,
+        })) || 0
+      : 0;
 
     // Check available stock
     const availableStock = productVariety.stock - totalInCarts;
 
-    // Find or create cart
+    // Find the user's pending cart before creating one for this item.
     let cart = await Cart.findOne({
       where: { userId, status: "pending" },
       transaction,
     });
 
-    if (!cart) {
-      cart = await Cart.create(
-        {
-          userId,
-          status: "pending",
-        },
-        { transaction },
-      );
-    }
-
     // Check for existing cart item
-    let cartItem = await CartItem.findOne({
-      where: {
-        cartId: cart.id,
-        productVarietyId,
-      },
-      transaction,
-    });
+    let cartItem = cart
+      ? await CartItem.findOne({
+          where: {
+            cartId: cart.id,
+            productVarietyId,
+          },
+          transaction,
+        })
+      : null;
 
     const currentUserCartQuantity = cartItem ? cartItem.quantity : 0;
     const newTotalQuantity = currentUserCartQuantity + quantity;
@@ -259,6 +261,16 @@ router.post("/add", auth, async (req, res) => {
         success: false,
         message: `Insufficient stock. Only ${availableStock} items available`,
       });
+    }
+
+    if (!cart) {
+      cart = await Cart.create(
+        {
+          userId,
+          status: "pending",
+        },
+        { transaction },
+      );
     }
 
     if (cartItem) {
@@ -290,11 +302,14 @@ router.post("/add", auth, async (req, res) => {
       data: cartItem,
     });
   } catch (error) {
-    await transaction.rollback();
+    if (transaction && !transaction.finished) {
+      await transaction.rollback();
+    }
     console.error("Add to cart error:", error);
     return res.status(500).json({
       success: false,
       message: "Error adding item to cart",
+      error: error.message,
     });
   }
 });
@@ -376,25 +391,28 @@ router.put("/update/:itemId", auth, async (req, res) => {
       });
     }
 
-    // Calculate total quantity in other pending carts (excluding current user's cart)
-    const totalInOtherCarts =
-      (await CartItem.sum("quantity", {
-        where: {
-          productVarietyId: cartItem.productVarietyId,
-          id: { [Op.ne]: cartItemId }, // Exclude current cart item
-        },
-        include: [
-          {
-            model: Cart,
-            as: "cart",
-            where: {
-              status: "pending",
-              userId: { [Op.ne]: userId }, // Exclude current user's cart
-            },
+    // Get other pending cart IDs separately to avoid an invalid aggregate join.
+    const otherPendingCarts = await Cart.findAll({
+      attributes: ["id"],
+      where: {
+        status: "pending",
+        userId: { [Op.ne]: userId },
+      },
+      transaction,
+    });
+    const otherPendingCartIds = otherPendingCarts.map(
+      (pendingCart) => pendingCart.id,
+    );
+    const totalInOtherCarts = otherPendingCartIds.length
+      ? (await CartItem.sum("quantity", {
+          where: {
+            productVarietyId: cartItem.productVarietyId,
+            id: { [Op.ne]: cartItemId },
+            cartId: { [Op.in]: otherPendingCartIds },
           },
-        ],
-        transaction,
-      })) || 0;
+          transaction,
+        })) || 0
+      : 0;
 
     // Check available stock
     const availableStock = cartItem.productVariety.stock - totalInOtherCarts;

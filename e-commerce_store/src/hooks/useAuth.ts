@@ -1,5 +1,5 @@
 import { useAppSelector, useAppDispatch } from "@/src/store";
-import { loginStart, loginSuccess, loginFailure, logout } from "@/src/store";
+import { loginStart, loginSuccess, loginFailure, stopAuthLoading, logout } from "@/src/store";
 import { AuthService } from "@/src/services/auth.service";
 
 interface LoginCredentials {
@@ -59,6 +59,8 @@ export const useAuth = () => {
       const message = error instanceof Error ? error.message : 'Registration failed';
       dispatch(loginFailure(message));
       return { success: false, message };
+    } finally {
+      dispatch(stopAuthLoading());
     }
   };
 
