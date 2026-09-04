@@ -69,11 +69,14 @@ const sequelize = new Sequelize(
     logging: false,
 
     // Required for Aiven MySQL
-    dialectOptions: {
-      ssl: {
-        rejectUnauthorized: false
-      }
-    },
+    // dialectOptions: {
+    //   ssl: {
+    //     rejectUnauthorized: false
+    //   }
+    // },
+    dialectOptions: process.env.DB_SSL === 'true'
+  ? { ssl: { rejectUnauthorized: false } }
+  : {},
 
     pool: {
       max: 10,
