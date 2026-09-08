@@ -26,6 +26,11 @@ export function CategorySelector() {
   }, []);
 
   return (
+    subCategories.length === 0 ? (
+      <div className="flex justify-center py-12">
+        <p>Please wait while we load the subcategories...</p>
+      </div>
+    ) : (
     <div className="flex justify-center gap-3 sm:gap-4 lg:gap-6 overflow-x-auto no-scrollbar py-2">
       {subCategories.map((subcategory) => (
         <div
@@ -51,5 +56,5 @@ export function CategorySelector() {
         </div>
       ))}
     </div>
-  );
+  ));
 }

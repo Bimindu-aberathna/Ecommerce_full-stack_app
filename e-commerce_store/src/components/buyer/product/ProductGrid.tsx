@@ -3,6 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ProductCard from "./ProductCard";
 import { Product } from "@/src/types";
 import Link from "next/link";
+import Waiting from "../../ui/Waiting";
 
 interface ProductsGridProps {
   initialProducts: Product[];
@@ -41,7 +42,10 @@ export default function ProductsGrid({
       : [1];
 
   return (
-    <>
+  initialProducts.length === 0 ? (
+    <Waiting />
+  ) : (
+    <div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {initialProducts.length > 0 ? (
           initialProducts.map((product) => (
@@ -87,6 +91,6 @@ export default function ProductsGrid({
           </button>
         </div>
       </div>
-    </>
-  );
+    </div>
+  ));
 }
