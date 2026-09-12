@@ -27,7 +27,7 @@ const { adminAuth } = require('./middleware/auth');
 const app = express();
 
 const startServer = async () => {
-  // Connect to MySQL Database before starting the HTTP server
+  // Connect to PostgreSQL Database before starting the HTTP server
   try {
     await connectDB();
   } catch (err) {
