@@ -3,7 +3,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ProductCard from "./ProductCard";
 import { Product } from "@/src/types";
 import Link from "next/link";
-import Waiting from "../../ui/Waiting";
+// import Waiting from "../../ui/Waiting";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 interface ProductsGridProps {
   initialProducts: Product[];
@@ -26,6 +28,17 @@ export default function ProductsGrid({
     router.push(`?${params.toString()}`);
   };
 
+  useEffect(() => {
+    waitingAlert();
+  }, [initialProducts]);
+
+  const waitingAlert = () => {
+    if (initialProducts.length === 0) {
+      toast.dismiss();
+      toast.warn("Free Server is starting up, please wait for a few seconds.");
+    }
+  }
+
   const safeCurrentPage = Math.max(1, Math.min(totalPages || 1, currentPage));
   const maxButtons = 5;
   const startPage = Math.max(
@@ -42,9 +55,6 @@ export default function ProductsGrid({
       : [1];
 
   return (
-  initialProducts.length === 0 ? (
-    <Waiting />
-  ) : (
     <div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {initialProducts.length > 0 ? (
@@ -92,5 +102,5 @@ export default function ProductsGrid({
         </div>
       </div>
     </div>
-  ));
+  );
 }
