@@ -45,6 +45,32 @@ interface cart {
   shippingCost: number;
 }
 
+const DEFAULT_PRODUCT_IMAGE = "/images/products/default-product.jpg";
+
+function getProductImageUrl(images: string | string[] | undefined): string {
+  if (!images) return DEFAULT_PRODUCT_IMAGE;
+
+  if (Array.isArray(images)) {
+    return images[0] || DEFAULT_PRODUCT_IMAGE;
+  }
+
+  if (/^https?:\/\//i.test(images) || images.startsWith("/")) {
+    return images;
+  }
+
+  try {
+    const parsed = JSON.parse(images);
+    const firstImage = Array.isArray(parsed) ? parsed[0] : parsed;
+
+    if (typeof firstImage === "string") return firstImage;
+    if (firstImage && typeof firstImage.url === "string") return firstImage.url;
+  } catch {
+    return DEFAULT_PRODUCT_IMAGE;
+  }
+
+  return DEFAULT_PRODUCT_IMAGE;
+}
+
 function CartPage() {
   const [cart, setCart] = useState<cart | null>(null);
   const { isAuthenticated, token } = useAuth();
@@ -205,11 +231,7 @@ function CartPage() {
                     className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 lg:gap-6 border-b pb-4 sm:pb-6"
                   >
                     <img
-                      src={
-                        item?.productVariety?.product?.images
-                          ? JSON.parse(item?.productVariety?.product?.images)[0]
-                          : "https://i.pcmag.com/imagery/reviews/04xfuyigoH0cSxuxGwpNFuM-5.fit_lim.size_480x280.v1727225999.jpg"
-                      }
+                      src={getProductImageUrl(item?.productVariety?.product?.images)}
                       alt={item?.productVariety?.product?.name}
                       className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded"
                     />
